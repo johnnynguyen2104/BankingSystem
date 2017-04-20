@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace BankSystem.Security
 {
-    public class Class1
+    public class AuthConfig
     {
-        public Class1()
+        public AuthConfig()
         {
         }
     }
