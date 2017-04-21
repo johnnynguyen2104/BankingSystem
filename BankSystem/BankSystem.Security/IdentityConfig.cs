@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
-using BankSystem.DAL.DomainModel;
+using BankSystem.DAL.DomainModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Identity;
@@ -9,6 +9,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using BankSystem.Security.IdentityBusiness;
 
 namespace BankSystem.Security
 {
@@ -23,6 +26,8 @@ namespace BankSystem.Security
             services.AddIdentity<User, Role>()
                 .AddEntityFrameworkStores<BankSystemDbContext>()
                 .AddDefaultTokenProviders();
+
+            //add DI 
         }
     }
 

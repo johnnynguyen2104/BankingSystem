@@ -1,4 +1,4 @@
-﻿using BankSystem.DAL.DomainModel;
+﻿using BankSystem.DAL.DomainModels;
 using BankSystem.Security.Models;
 using System;
 using System.Collections.Generic;

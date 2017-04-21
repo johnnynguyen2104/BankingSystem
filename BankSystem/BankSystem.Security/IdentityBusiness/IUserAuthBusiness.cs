@@ -7,11 +7,16 @@ using System.Threading.Tasks;
 using BankSystem.Security.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http.Authentication;
+using System.Security.Claims;
 
 namespace BankSystem.Security.IdentityBusiness
 {
     public interface IUserAuthBusiness
     {
+        string GetUserName(ClaimsPrincipal claim);
+
+        bool IsSignedIn(ClaimsPrincipal claim);
+
         Task<string> GetPhoneNumberAsync(UserInformation user);
 
         Task<string> GetEmailAsync(UserInformation user);

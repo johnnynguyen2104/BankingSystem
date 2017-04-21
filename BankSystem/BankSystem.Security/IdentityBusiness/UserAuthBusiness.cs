@@ -4,11 +4,15 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BankSystem.DAL.DomainModel;
+using BankSystem.DAL.DomainModels;
 using Microsoft.AspNetCore.Identity;
 using BankSystem.Security.Models;
 using Microsoft.AspNetCore.Http.Authentication;
 using BankSystem.Security.Helpers;
+using System.Security.Claims;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Logging;
 
 namespace BankSystem.Security.IdentityBusiness
 {
@@ -17,7 +21,7 @@ namespace BankSystem.Security.IdentityBusiness
         public ApplicationSignInManager SignInManager { get; set; }
         public ApplicationUserManager UserManager { get; set; }
 
-        public UserAuthBusiness(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
+        public UserAuthBusiness(ApplicationSignInManager signInManager, ApplicationUserManager userManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
@@ -153,6 +157,16 @@ namespace BankSystem.Security.IdentityBusiness
         public Task<string> GetEmailAsync(UserInformation user)
         {
             return UserManager.GetEmailAsync(user.MapFromUserInfo());
+        }
+
+        public bool IsSignedIn(ClaimsPrincipal claim)
+        {
+            return SignInManager.IsSignedIn(claim);
+        }
+
+        public string GetUserName(ClaimsPrincipal claim)
+        {
+            return UserManager.GetUserName(claim);
         }
     }
 }
