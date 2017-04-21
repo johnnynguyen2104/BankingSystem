@@ -4,10 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
-namespace BankSystem.DAL.DomainModel
+namespace BankSystem.DAL.DomainModels
 {
-    public class User : IdentityUser<string>
+    public class User : IdentityUser<string, UserClaim, UserRole, UserLogin>
     {
         public virtual ICollection<Account> Accounts { get; set; }
+
+        public User()
+        {
+            this.Id = Guid.NewGuid().ToString();
+
+            // Add any custom User properties/code here
+        }
     }
 }

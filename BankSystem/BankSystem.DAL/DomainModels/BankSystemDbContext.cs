@@ -7,19 +7,23 @@ using Microsoft.EntityFrameworkCore;
 using BankSystem.DAL.Interfaces;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace BankSystem.DAL.DomainModel
+namespace BankSystem.DAL.DomainModels
 {
-    public class BankSystemDbContext : IdentityDbContext<User, Role, string>, IDbContext
+    public class BankSystemDbContext : IdentityDbContext<User, Role, string, UserClaim, UserRole, UserLogin, RoleClaim, IdentityUserToken<string>>, IDbContext
     {
         public BankSystemDbContext(DbContextOptions<BankSystemDbContext> options) 
             : base(options)
         {
-
         }
 
         public BankSystemDbContext() : base()
         {
 
+        }
+
+        public static BankSystemDbContext Create()
+        {
+            return new BankSystemDbContext();
         }
 
         public int CommitChanges()
@@ -44,6 +48,14 @@ namespace BankSystem.DAL.DomainModel
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<User>().ToTable("Users");
+            builder.Entity<Role>().ToTable("Roles");
+            builder.Entity<UserRole>().ToTable("UserRoles");
+            builder.Entity<RoleClaim>().ToTable("RoleClaims");
+            builder.Entity<UserLogin>().ToTable("UserLogins");
+            builder.Entity<UserClaim>().ToTable("UserClaims");
+            builder.Entity<IdentityUserToken<string>>().ToTable("UserTokens");
 
             builder.Entity<User>()
                 .HasMany(a => a.Accounts)
