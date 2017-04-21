@@ -1,0 +1,7 @@
+/BankSystem/BankSystem/*
+/BankSystem/BankSystem.DAL/obj
+/BankSystem/BankSystem.DAL/bin
+/BankSystem/BankSystem.Security/obj
+/BankSystem/BankSystem.Security/bin
+/BankSystem/BankSystem.Service/obj
+/BankSystem/BankSystem.Service/bin
