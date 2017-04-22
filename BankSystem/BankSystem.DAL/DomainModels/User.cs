@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace BankSystem.DAL.DomainModels
 {
-    public class User : IdentityUser<string, UserClaim, UserRole, UserLogin>
+    public class User : IdentityUser<string>
     {
         public virtual ICollection<Account> Accounts { get; set; }
 

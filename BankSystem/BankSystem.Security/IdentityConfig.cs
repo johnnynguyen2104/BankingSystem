@@ -24,6 +24,8 @@ namespace BankSystem.Security
                 options.UseSqlServer(connectionString));
 
             services.AddIdentity<User, Role>()
+                .AddSignInManager<ApplicationSignInManager>()
+                .AddUserManager<ApplicationUserManager>()
                 .AddEntityFrameworkStores<BankSystemDbContext>()
                 .AddDefaultTokenProviders();
 

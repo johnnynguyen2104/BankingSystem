@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace BankSystem.DAL.DomainModels
 {
-    public class BankSystemDbContext : IdentityDbContext<User, Role, string, UserClaim, UserRole, UserLogin, RoleClaim, IdentityUserToken<string>>, IDbContext
+    public class BankSystemDbContext : IdentityDbContext<User, Role, string>, IDbContext
     {
         public BankSystemDbContext(DbContextOptions<BankSystemDbContext> options) 
             : base(options)
@@ -51,10 +51,10 @@ namespace BankSystem.DAL.DomainModels
 
             builder.Entity<User>().ToTable("Users");
             builder.Entity<Role>().ToTable("Roles");
-            builder.Entity<UserRole>().ToTable("UserRoles");
-            builder.Entity<RoleClaim>().ToTable("RoleClaims");
-            builder.Entity<UserLogin>().ToTable("UserLogins");
-            builder.Entity<UserClaim>().ToTable("UserClaims");
+            builder.Entity<IdentityUserRole<string>>().ToTable("UserRoles");
+            builder.Entity<IdentityRoleClaim<string>>().ToTable("RoleClaims");
+            builder.Entity<IdentityUserLogin<string>>().ToTable("UserLogins");
+            builder.Entity<IdentityUserClaim<string>>().ToTable("UserClaims");
             builder.Entity<IdentityUserToken<string>>().ToTable("UserTokens");
 
             builder.Entity<User>()

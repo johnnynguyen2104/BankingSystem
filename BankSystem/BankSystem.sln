@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankSystem", "BankSystem\BankSystem.csproj", "{39072D28-2473-45F1-B115-51A1B218ACB7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BankSystem.Service", "BankSystem.Service\BankSystem.Service.csproj", "{37625423-DA7E-4F12-B792-22F4E4B26F54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankSystem.Service", "BankSystem.Service\BankSystem.Service.csproj", "{37625423-DA7E-4F12-B792-22F4E4B26F54}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BankSystem.DAL", "BankSystem.DAL\BankSystem.DAL.csproj", "{39416093-A98C-474C-ADDE-B06AE66B3ED3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankSystem.DAL", "BankSystem.DAL\BankSystem.DAL.csproj", "{39416093-A98C-474C-ADDE-B06AE66B3ED3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BankSystem.Security", "BankSystem.Security\BankSystem.Security.csproj", "{1858C498-6AF0-433D-9CB7-3C6B881EA062}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankSystem.Security", "BankSystem.Security\BankSystem.Security.csproj", "{1858C498-6AF0-433D-9CB7-3C6B881EA062}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankSystem", "BankSystem\BankSystem.csproj", "{49AC8685-9A9A-4B30-BBAA-622B9ECD4726}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{39072D28-2473-45F1-B115-51A1B218ACB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{39072D28-2473-45F1-B115-51A1B218ACB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{39072D28-2473-45F1-B115-51A1B218ACB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{39072D28-2473-45F1-B115-51A1B218ACB7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{37625423-DA7E-4F12-B792-22F4E4B26F54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{37625423-DA7E-4F12-B792-22F4E4B26F54}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37625423-DA7E-4F12-B792-22F4E4B26F54}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -33,6 +29,10 @@ Global
 		{1858C498-6AF0-433D-9CB7-3C6B881EA062}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1858C498-6AF0-433D-9CB7-3C6B881EA062}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1858C498-6AF0-433D-9CB7-3C6B881EA062}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49AC8685-9A9A-4B30-BBAA-622B9ECD4726}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49AC8685-9A9A-4B30-BBAA-622B9ECD4726}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49AC8685-9A9A-4B30-BBAA-622B9ECD4726}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49AC8685-9A9A-4B30-BBAA-622B9ECD4726}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace BankSystem.DAL.DomainModels
 {
-    public class Role: IdentityRole<string, UserRole, RoleClaim>
+    public class Role: IdentityRole<string>
     {
     }
 }
