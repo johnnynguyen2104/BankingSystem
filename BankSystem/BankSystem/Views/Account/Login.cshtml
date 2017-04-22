@@ -6,86 +6,65 @@
 
 @{
     ViewData["Title"] = "Log in";
+    Layout = "~/Shared/_LoginLayout.cshtml";
 }
 
-<h2>@ViewData["Title"].</h2>
-<div class="row">
-    <div class="col-md-8">
-        <section>
-            <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
-                <h4>Use a local account to log in.</h4>
-                <hr />
-                <div asp-validation-summary="All" class="text-danger"></div>
-                <div class="form-group">
-                    <label asp-for="Email" class="col-md-2 control-label"></label>
-                    <div class="col-md-10">
-                        <input asp-for="Email" class="form-control" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Password" class="col-md-2 control-label"></label>
-                    <div class="col-md-10">
-                        <input asp-for="Password" class="form-control" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-md-offset-2 col-md-10">
-                        <div class="checkbox">
-                            <label asp-for="RememberMe">
-                                <input asp-for="RememberMe" />
-                                @Html.DisplayNameFor(m => m.RememberMe)
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-md-offset-2 col-md-10">
-                        <button type="submit" class="btn btn-default">Log in</button>
-                    </div>
-                </div>
-                <p>
-                    <a asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]">Register as a new user?</a>
-                </p>
-                <p>
-                    <a asp-action="ForgotPassword">Forgot your password?</a>
-                </p>
-            </form>
-        </section>
+<div class="app-body">
+    <div class="loader-container text-center">
+        <div class="icon">
+            <div class="sk-folding-cube">
+                <div class="sk-cube1 sk-cube"></div>
+                <div class="sk-cube2 sk-cube"></div>
+                <div class="sk-cube4 sk-cube"></div>
+                <div class="sk-cube3 sk-cube"></div>
+            </div>
+        </div>
+        <div class="title">Logging in...</div>
     </div>
-    <div class="col-md-4">
-        <section>
-            <h4>Use another service to log in.</h4>
-            <hr />
-            @{
-                var loginProviders = SignInManager.GetExternalAuthenticationSchemes().ToList();
-                if (loginProviders.Count == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See <a href="https://go.microsoft.com/fwlink/?LinkID=532715">this article</a>
-                            for details on setting up this ASP.NET application to support logging in via external services.
-                        </p>
-                    </div>
-                }
-                else
-                {
-                    <form asp-controller="Account" asp-action="ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in loginProviders)
-                                {
-                                    <button type="submit" class="btn btn-default" name="provider" value="@provider.AuthenticationScheme" title="Log in using your @provider.DisplayName account">@provider.AuthenticationScheme</button>
-                                }
-                            </p>
-                        </div>
-                    </form>
-                }
+    <div class="app-block">
+        <div class="app-form">
+            <div class="form-header">
+                <div class="app-brand"><span class="highlight">Stock</span> Exchange</div>
+            </div>
+            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">
+                        <i class="fa fa-user" aria-hidden="true"></i>
+                    </span>
+
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Username", aria_describedby = "basic-addon1" })
+                    @*<input type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon1">*@
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon2">
+                        <i class="fa fa-key" aria-hidden="true"></i>
+                    </span>
+                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Password", aria_describedby = "basic-addon2" })
+                </div>
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="text-center">
+                    <input type="submit" class="btn btn-success btn-submit" value="Login">
+                </div>
+
             }
-        </section>
+
+            <div class="form-line">
+                <div class="title">OR</div>
+            </div>
+            <div class="form-footer">
+                <a href="@Url.Action("Register", "Account")" class="btn btn-default btn-sm btn-social __facebook">
+                    <div class="info">
+                        <span class="title">Sign Up As New User</span>
+                    </div>
+                </a>
+            </div>
+        </div>
     </div>
 </div>
+
+
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }

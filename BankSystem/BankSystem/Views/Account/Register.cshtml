@@ -1,41 +1,82 @@
 ﻿@model RegisterViewModel
+
 @{
-    ViewData["Title"] = "Register";
+    Layout = "../Shared/_LoginLayout.cshtml";
 }
 
-<h2>@ViewData["Title"].</h2>
+<div class="app-body">
+    <div class="loader-container text-center">
+        <div class="icon">
+            <div class="sk-folding-cube">
+                <div class="sk-cube1 sk-cube"></div>
+                <div class="sk-cube2 sk-cube"></div>
+                <div class="sk-cube4 sk-cube"></div>
+                <div class="sk-cube3 sk-cube"></div>
+            </div>
+        </div>
+        <div class="title">Logging in...</div>
+    </div>
+    <div class="app-block">
+        <div class="app-right-section">
+            <div class="app-brand"><span class="highlight">Stock</span> Exchange</div>
+            <div class="app-info">
 
-<form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
-    <h4>Create a new account.</h4>
-    <hr />
-    <div asp-validation-summary="All" class="text-danger"></div>
-    <div class="form-group">
-        <label asp-for="Email" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="Email" class="form-control" />
-            <span asp-validation-for="Email" class="text-danger"></span>
+                <ul class="list">
+                    <li>
+                        <div class="icon">
+                            <i class="fa fa-paper-plane-o" aria-hidden="true"></i>
+                        </div>
+                        <div class="title">Increase <b>Productivity</b></div>
+                    </li>
+                    <li>
+                        <div class="icon">
+                            <i class="fa fa-cubes" aria-hidden="true"></i>
+                        </div>
+                        <div class="title">Lot of <b>Features</b></div>
+                    </li>
+                    <li>
+                        <div class="icon">
+                            <i class="fa fa-usd" aria-hidden="true"></i>
+                        </div>
+                        <div class="title">Forever <b>Free</b></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="app-form">
+            <div class="form-suggestion">
+                Create an account for free.
+            </div>
+            @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">
+                        <i class="fa fa-user" aria-hidden="true"></i>
+                    </span>
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Email", aria_describedby = "basic-addon1" })
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon2">
+                        <i class="fa fa-key" aria-hidden="true"></i>
+                    </span>
+                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Password", aria_describedby = "basic-addon2" })
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon3">
+                        <i class="fa fa-check" aria-hidden="true"></i>
+                    </span>
+                    @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", placeholder = "Confirm Password", aria_describedby = "basic-addon3" })
+                </div>
+                @Html.ValidationSummary("", new { @class = "text-danger" })
+                <div class="text-center">
+                    <input type="submit" class="btn btn-success btn-submit" value="Register">
+                </div>
+            }
         </div>
     </div>
-    <div class="form-group">
-        <label asp-for="Password" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="Password" class="form-control" />
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group">
-        <label asp-for="ConfirmPassword" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="ConfirmPassword" class="form-control" />
-            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <button type="submit" class="btn btn-default">Register</button>
-        </div>
-    </div>
-</form>
+</div>
+
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
