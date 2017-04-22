@@ -47,50 +47,36 @@
             <div class="sidebar-menu">
                 <ul class="sidebar-nav">
                     <li class="active">
-                        <a href="@Url.Action("Index", "Home")">
+                        <a href="@Url.Action("Index", "Account")">
                             <div class="icon">
-                                <i class="fa fa-tasks" aria-hidden="true"></i>
+                                <i class="fa fa-history" aria-hidden="true"></i>
                             </div>
-                            <div class="title">Main Menu</div>
-                        </a>
-                    </li>
-                    <li class="menu.messaging">
-                        <a href="#">
-                            <div class="icon">
-                                <i class="fa fa-comments" aria-hidden="true"></i>
-                            </div>
-                            <div class="title">Deposit</div>
+                            <div class="title">Transaction History</div>
                         </a>
                     </li>
                     <li class="dropdown ">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             <div class="icon">
-                                <i class="fa fa-cube" aria-hidden="true"></i>
+                                <i class="fa fa-share" aria-hidden="true"></i>
                             </div>
                             <div class="title">Withdraw Money</div>
+                        </a>
+                    </li>
+                    <li class="menu.messaging">
+                        <a href="#">
+                            <div class="icon">
+                                <i class="fa fa-reply" aria-hidden="true"></i>
+                            </div>
+                            <div class="title">Deposit</div>
                         </a>
                     </li>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             <div class="icon">
-                                <i class="fa fa-file-o" aria-hidden="true"></i>
+                                <i class="fa fa-paper-plane" aria-hidden="true"></i>
                             </div>
                             <div class="title">Fund Transfer</div>
                         </a>
-                        <div class="dropdown-menu">
-                            <ul>
-                                <li class="section"><i class="fa fa-file-o" aria-hidden="true"></i> Admin</li>
-                                <li><a href="#">Form</a></li>
-                                <li><a href="#">Profile</a></li>
-                                <li><a href="#">Search</a></li>
-                                <li class="line"></li>
-                                <li class="section"><i class="fa fa-file-o" aria-hidden="true"></i> Landing</li>
-                                <!-- <li><a href="./pages/landing.html">Landing</a></li> -->
-                                <li><a href="#">Login</a></li>
-                                <li><a href="#">Register</a></li>
-                                <!-- <li><a href="./pages/404.html">404</a></li> -->
-                            </ul>
-                        </div>
                     </li>
                 </ul>
             </div>
@@ -153,7 +139,8 @@
                                     </div>
                                     <ul class="action">
                                         <li>
-                                            <a href="@Url.Action("Logout", "Account")">
+                                            <a href="@Url.Action("Logout", "User")">
+                                                <i class="fa fa-sign-out" aria-hidden="true"></i>
                                                 Logout
                                             </a>
                                         </li>
@@ -165,7 +152,7 @@
                 </div>
             </nav>
             @RenderBody()
-            <footer class="app-footer">
+            @*<footer class="app-footer">
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="footer-copyright">
@@ -173,7 +160,7 @@
                         </div>
                     </div>
                 </div>
-            </footer>
+            </footer>*@
         </div>
 
     </div>
