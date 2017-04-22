@@ -124,10 +124,7 @@ namespace BankSystem.Controllers
             return View(model);
         }
 
-        //
-        // POST: /Account/Logout
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> Logout()
         {
             await _userAuthBusiness.SignOutAsync();

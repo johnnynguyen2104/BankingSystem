@@ -6,7 +6,7 @@
 
 @{
     ViewData["Title"] = "Log in";
-    Layout = "~/Shared/_LoginLayout.cshtml";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
 }
 
 <div class="app-body">
@@ -24,9 +24,9 @@
     <div class="app-block">
         <div class="app-form">
             <div class="form-header">
-                <div class="app-brand"><span class="highlight">Stock</span> Exchange</div>
+                <div class="app-brand"><span class="highlight">Banking</span> System</div>
             </div>
-            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, null, htmlAttributes: new { @class = "form-horizontal", role = "form" }))
             {
                 @Html.AntiForgeryToken()
                 <div class="input-group">

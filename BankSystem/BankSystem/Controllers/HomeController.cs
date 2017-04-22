@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BankSystem.Controllers
 {
+    [Microsoft.AspNetCore.Authorization.Authorize]
     public class HomeController : Controller
     {
         public IActionResult Index()

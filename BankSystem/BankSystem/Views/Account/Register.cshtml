@@ -1,7 +1,7 @@
 ﻿@model RegisterViewModel
 
 @{
-    Layout = "../Shared/_LoginLayout.cshtml";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
 }
 
 <div class="app-body">
@@ -18,7 +18,7 @@
     </div>
     <div class="app-block">
         <div class="app-right-section">
-            <div class="app-brand"><span class="highlight">Stock</span> Exchange</div>
+            <div class="app-brand"><span class="highlight">Banking</span> System</div>
             <div class="app-info">
 
                 <ul class="list">
@@ -26,7 +26,7 @@
                         <div class="icon">
                             <i class="fa fa-paper-plane-o" aria-hidden="true"></i>
                         </div>
-                        <div class="title">Increase <b>Productivity</b></div>
+                        <div class="title">Fast <b>Transfer</b></div>
                     </li>
                     <li>
                         <div class="icon">
@@ -73,6 +73,16 @@
                     <input type="submit" class="btn btn-success btn-submit" value="Register">
                 </div>
             }
+            <div class="form-line">
+                <div class="title">OR</div>
+            </div>
+            <div class="form-footer">
+                <a href="@Url.Action("Login", "Account")" class="btn btn-default btn-sm btn-social __facebook">
+                    <div class="info">
+                        <span class="title">Back To Login Page</span>
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
 </div>
