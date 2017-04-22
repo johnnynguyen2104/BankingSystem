@@ -1,0 +1,76 @@
+﻿@using System.Collections.Generic
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http.Authentication
+@using BankSystem.Models.UserViewModels
+@model LoginViewModel
+@inject BankSystem.Security.ApplicationSignInManager SignInManager
+
+@{
+    ViewData["Title"] = "Log in";
+    Layout = "~/Views/Shared/_AllGreenLayout.cshtml";
+}
+
+<div class="app-body">
+    <div class="loader-container text-center">
+        <div class="icon">
+            <div class="sk-folding-cube">
+                <div class="sk-cube1 sk-cube"></div>
+                <div class="sk-cube2 sk-cube"></div>
+                <div class="sk-cube4 sk-cube"></div>
+                <div class="sk-cube3 sk-cube"></div>
+            </div>
+        </div>
+        <div class="title">Logging in...</div>
+    </div>
+    <div class="app-block">
+        <div class="app-form">
+            <div class="form-header">
+                <div class="app-brand"><span class="highlight">Banking</span> System</div>
+            </div>
+            @using (Html.BeginForm("Login", "User", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, null, htmlAttributes: new { @class = "form-horizontal", role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">
+                        <i class="fa fa-user" aria-hidden="true"></i>
+                    </span>
+
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Username", aria_describedby = "basic-addon1" })
+                    @*<input type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon1">*@
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon2">
+                        <i class="fa fa-key" aria-hidden="true"></i>
+                    </span>
+                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Password", aria_describedby = "basic-addon2" })
+                </div>
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="text-center">
+
+                    <button type="submit" class="btn btn-success btn-submit"><i class="fa fa-sign-in" aria-hidden="true"></i> Login </button>
+                </div>
+
+            }
+
+            <div class="form-line">
+                <div class="title">OR</div>
+            </div>
+            <div class="form-footer">
+                <a href="@Url.Action("Register", "User")" class="btn btn-default btn-sm btn-social __facebook">
+                    <div class="info">
+                        <span class="title">
+                            <i class="fa fa-registered" aria-hidden="true"></i>
+                            Sign Up As New User
+                        </span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
