@@ -39,20 +39,27 @@ namespace BankSystem.Security.IdentityBusiness
             return taskResult;
         }
 
-        public Task<IdentityResult> CreateAsync(UserInformation user, string password = null)
+        public async Task<IdentityResult> CreateAsync(UserInformation user, string password = null)
         {
             var userAuth = user.MapFromUserInfo();
-            Task<IdentityResult> result;
-            if (string.IsNullOrEmpty(password))
+            IdentityResult result;
+
+            //Internal register
+            if (!string.IsNullOrEmpty(password))
             {
-                result = UserManager.CreateAsync(userAuth, password);
+                result = await UserManager.CreateAsync(userAuth, password);
             }
             else
             {
-                result = UserManager.CreateAsync(userAuth);
+                //external register
+                result = await UserManager.CreateAsync(userAuth);
             }
 
-            user.Id = userAuth.Id;
+            if (result.Succeeded)
+            {
+                await SignInManager.SignInAsync(userAuth, false);
+            }
+
             return result;
         }
 
