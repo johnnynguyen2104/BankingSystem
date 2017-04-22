@@ -23,7 +23,14 @@ namespace BankSystem.Security
             services.AddDbContext<BankSystemDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
-            services.AddIdentity<User, Role>()
+            services.AddIdentity<User, Role>(options => {
+                options.Cookies.ApplicationCookie.LoginPath = "/User/Login";
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 6;
+            })
                 .AddSignInManager<ApplicationSignInManager>()
                 .AddUserManager<ApplicationUserManager>()
                 .AddEntityFrameworkStores<BankSystemDbContext>()

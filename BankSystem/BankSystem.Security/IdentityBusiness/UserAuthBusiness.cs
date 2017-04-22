@@ -8,23 +8,26 @@ using BankSystem.DAL.DomainModels;
 using Microsoft.AspNetCore.Identity;
 using BankSystem.Security.Models;
 using Microsoft.AspNetCore.Http.Authentication;
-using BankSystem.Security.Helpers;
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
+using AutoMapper;
 
 namespace BankSystem.Security.IdentityBusiness
 {
     public class UserAuthBusiness : IUserAuthBusiness
     {
-        public ApplicationSignInManager SignInManager { get; set; }
-        public ApplicationUserManager UserManager { get; set; }
+        private ApplicationSignInManager SignInManager { get; set; }
+        private ApplicationUserManager UserManager { get; set; }
 
-        public UserAuthBusiness(ApplicationSignInManager signInManager, ApplicationUserManager userManager)
+        private readonly IMapper Mapper;
+
+        public UserAuthBusiness(ApplicationSignInManager signInManager, ApplicationUserManager userManager, IMapper mapper)
         {
             UserManager = userManager;
             SignInManager = signInManager;
+            Mapper = mapper;
         }
 
         public Task<SignInResult> PasswordSignInAsync(string userName, string password, bool isPersistent, bool shouldLockout)
@@ -41,7 +44,7 @@ namespace BankSystem.Security.IdentityBusiness
 
         public async Task<IdentityResult> CreateAsync(UserInformation user, string password = null)
         {
-            var userAuth = user.MapFromUserInfo();
+            var userAuth = Mapper.Map<User>(user);
             IdentityResult result;
 
             //Internal register
@@ -65,39 +68,39 @@ namespace BankSystem.Security.IdentityBusiness
 
         public Task SignInAsync(UserInformation user, bool isPersistent)
         {
-            var taskResult = SignInManager.SignInAsync(user.MapFromUserInfo(), isPersistent);
+            var taskResult = SignInManager.SignInAsync(Mapper.Map<User>(user), isPersistent);
 
             return taskResult;
         }
 
         public Task<IdentityResult> ConfirmEmailAsync(UserInformation userInfo, string token)
         {
-            var taskResult = UserManager.ConfirmEmailAsync(userInfo.MapFromUserInfo(), token);
+            var taskResult = UserManager.ConfirmEmailAsync(Mapper.Map<User>(userInfo), token);
             return taskResult;
         }
 
         public  UserInformation FindByNameAsync(string userName)
         {
             var taskResult =  UserManager.FindByNameAsync(userName).Result;
-            return taskResult.MapFromUserInfo();
+            return Mapper.Map<UserInformation>(taskResult);
         }
 
         public Task<bool> IsEmailConfirmedAsync(UserInformation userInfo)
         {
 
-            var taskResult = UserManager.IsEmailConfirmedAsync(userInfo.MapFromUserInfo());
+            var taskResult = UserManager.IsEmailConfirmedAsync(Mapper.Map<User>(userInfo));
             return taskResult;
         }
 
         public Task<IdentityResult> ResetPasswordAsync(UserInformation userInfo, string token, string newPassword)
         {
-            var taskResult = UserManager.ResetPasswordAsync(userInfo.MapFromUserInfo(), token, newPassword);
+            var taskResult = UserManager.ResetPasswordAsync(Mapper.Map<User>(userInfo), token, newPassword);
             return taskResult;
         }
 
         public Task<IList<string>> GetValidTwoFactorProvidersAsync(UserInformation userInfo)
         {
-            var taskResult = UserManager.GetValidTwoFactorProvidersAsync(userInfo.MapFromUserInfo());
+            var taskResult = UserManager.GetValidTwoFactorProvidersAsync(Mapper.Map<User>(userInfo));
             return taskResult;
         }
 
@@ -109,7 +112,7 @@ namespace BankSystem.Security.IdentityBusiness
 
         public Task<IdentityResult> AddLoginAsync(UserInformation userInfo, UserLoginInfo userLoginInfo)
         {
-            var taskResult = UserManager.AddLoginAsync(userInfo.MapFromUserInfo(), userLoginInfo);
+            var taskResult = UserManager.AddLoginAsync(Mapper.Map<User>(userInfo), userLoginInfo);
             return taskResult;
         }
 
@@ -137,33 +140,38 @@ namespace BankSystem.Security.IdentityBusiness
         {
             
             var task = SignInManager.GetTwoFactorAuthenticationUserAsync();
-            return task.Result.MapFromUserInfo();
+
+            return task == null ? null : Mapper.Map<UserInformation>(task);
         }
 
         public Task<string> GenerateTwoFactorTokenAsync(UserInformation userInfo, string tokenProvider)
         {
            
-            return UserManager.GenerateTwoFactorTokenAsync(userInfo.MapFromUserInfo(), tokenProvider);
+            return UserManager.GenerateTwoFactorTokenAsync(Mapper.Map<User>(userInfo), tokenProvider);
         }
 
         public UserInformation FindByEmailAsync(string email)
         {
-            return UserManager.FindByEmailAsync(email).Result.MapFromUserInfo();
+            var result = UserManager.FindByEmailAsync(email).Result;
+         
+            return result == null ? null : Mapper.Map<UserInformation>(result);
         }
 
         public UserInformation FindByIdAsync(string userId)
         {
-            return UserManager.FindByIdAsync(userId).Result.MapFromUserInfo();
+            var result = UserManager.FindByIdAsync(userId).Result;
+
+            return result == null ? null : Mapper.Map<UserInformation>(result);
         }
 
         public Task<string> GetPhoneNumberAsync(UserInformation user)
         {
-            return UserManager.GetPhoneNumberAsync(user.MapFromUserInfo());
+            return UserManager.GetPhoneNumberAsync(Mapper.Map<User>(user));
         }
 
         public Task<string> GetEmailAsync(UserInformation user)
         {
-            return UserManager.GetEmailAsync(user.MapFromUserInfo());
+            return UserManager.GetEmailAsync(Mapper.Map<User>(user));
         }
 
         public bool IsSignedIn(ClaimsPrincipal claim)

@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using BankSystem.Security;
 using BankSystem.Security.Services;
+using BankSystem.Service;
 
 namespace BankSystem
 {
@@ -39,6 +40,17 @@ namespace BankSystem
         public void ConfigureServices(IServiceCollection services)
         {
             IdentityConfig.RegisterIdentity(services, Configuration.GetConnectionString("BankSystemDb"));
+
+            //Register Mapper
+            var config = new AutoMapper.MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new ServiceMapper());
+                cfg.AddProfile(new SecurityMapper());
+            });
+
+            var mapper = config.CreateMapper();
+            services.AddSingleton(mapper);
+            //
 
             services.AddMvc();
 
