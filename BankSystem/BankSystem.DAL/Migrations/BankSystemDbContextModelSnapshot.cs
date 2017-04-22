@@ -63,25 +63,6 @@ namespace BankSystem.DAL.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("BankSystem.DAL.DomainModels.RoleClaim", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("ClaimType");
-
-                    b.Property<string>("ClaimValue");
-
-                    b.Property<string>("RoleId")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("RoleClaims");
-                });
-
             modelBuilder.Entity("BankSystem.DAL.DomainModels.User", b =>
                 {
                     b.Property<string>("Id")
@@ -132,7 +113,26 @@ namespace BankSystem.DAL.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("BankSystem.DAL.DomainModels.UserClaim", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("ClaimType");
+
+                    b.Property<string>("ClaimValue");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RoleClaims");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserClaim<string>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -151,7 +151,7 @@ namespace BankSystem.DAL.Migrations
                     b.ToTable("UserClaims");
                 });
 
-            modelBuilder.Entity("BankSystem.DAL.DomainModels.UserLogin", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider");
 
@@ -169,7 +169,7 @@ namespace BankSystem.DAL.Migrations
                     b.ToTable("UserLogins");
                 });
 
-            modelBuilder.Entity("BankSystem.DAL.DomainModels.UserRole", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserRole<string>", b =>
                 {
                     b.Property<string>("UserId");
 
@@ -204,7 +204,7 @@ namespace BankSystem.DAL.Migrations
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("BankSystem.DAL.DomainModels.RoleClaim", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("BankSystem.DAL.DomainModels.Role")
                         .WithMany("Claims")
@@ -212,7 +212,7 @@ namespace BankSystem.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("BankSystem.DAL.DomainModels.UserClaim", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserClaim<string>", b =>
                 {
                     b.HasOne("BankSystem.DAL.DomainModels.User")
                         .WithMany("Claims")
@@ -220,7 +220,7 @@ namespace BankSystem.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("BankSystem.DAL.DomainModels.UserLogin", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserLogin<string>", b =>
                 {
                     b.HasOne("BankSystem.DAL.DomainModels.User")
                         .WithMany("Logins")
@@ -228,7 +228,7 @@ namespace BankSystem.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("BankSystem.DAL.DomainModels.UserRole", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserRole<string>", b =>
                 {
                     b.HasOne("BankSystem.DAL.DomainModels.Role")
                         .WithMany("Users")
