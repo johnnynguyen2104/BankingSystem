@@ -31,14 +31,14 @@ namespace BankSystem.DAL.DomainModels
             return this.SaveChanges();
         }
 
-        public new EntityEntry<TEntity> Entry<TKey, TEntity>(TEntity entity)
+        public EntityEntry<TEntity> Entry<TKey, TEntity>(TEntity entity)
             where TKey : struct
             where TEntity : BaseEntity<TKey>
         {
             return this.Entry<TEntity>(entity);
         }
 
-        public new DbSet<TEntity> Set<TKey, TEntity>()
+        public DbSet<TEntity> Set<TKey, TEntity>()
             where TKey : struct
             where TEntity : BaseEntity<TKey>
         {
@@ -61,6 +61,11 @@ namespace BankSystem.DAL.DomainModels
                 .HasMany(a => a.Accounts)
                 .WithOne(a => a.User)
                 .HasForeignKey(a => a.UserId);
+
+            //set concurrency column
+            builder.Entity<Account>()
+                .Property(p => p.RowVersion).IsConcurrencyToken();
+
         }
     }
 }
