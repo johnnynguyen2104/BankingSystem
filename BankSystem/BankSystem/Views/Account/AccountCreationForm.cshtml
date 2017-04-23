@@ -50,6 +50,7 @@
             @using (Html.BeginForm("AccountCreation", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
             {
                 @Html.AntiForgeryToken()
+                @Html.HiddenFor(a => a.UserId)
                 <div class="input-group  disabled">
                     <span class="input-group-addon" id="basic-addon1">
                         <i class="fa fa-barcode" aria-hidden="true"></i>

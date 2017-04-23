@@ -12,36 +12,63 @@ using Microsoft.Extensions.Configuration;
 using BankSystem.Models;
 using BankSystem.Helpers;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authorization;
+using BankSystem.Security.IdentityBusiness;
+using BankSystem.Security;
+using System.Security.Claims;
+using BankSystem.Filters;
+using Microsoft.EntityFrameworkCore;
 
 namespace BankSystem.Controllers
 {
-    [Microsoft.AspNetCore.Authorization.Authorize]
+    [Authorize]
     public class AccountController : Controller
     {
         private readonly IAccountService _accountService;
         private readonly IMapper _mapper;
-        private readonly IConfigurationRoot _configuration;
+        private readonly IUserAuthBusiness _userAuthBusiness;
 
         public string UserId { get { return User.Claims.SingleOrDefault(a => a.Type.Contains("nameidentifier"))?.Value; } }
 
         private readonly AppSettings _appSettings;
 
-        public AccountController(IAccountService accountService, IMapper mapper, IOptions<AppSettings> appSettings)
+        public AccountController(IAccountService accountService, IMapper mapper, IOptions<AppSettings> appSettings,
+            ApplicationUserManager userManager,
+            ApplicationSignInManager signInManager)
         {
+            _userAuthBusiness = new UserAuthBusiness(signInManager, userManager, mapper);
             _mapper = mapper;
             _accountService = accountService;
             _appSettings = appSettings.Value;
         }
 
-        public IActionResult Index()
+        [ServiceFilter(typeof(AccountFilter))]
+        public IActionResult AccountLogin(AccountLoginVM login)
         {
+            return View(login);
+        }
+
+        [ServiceFilter(typeof(AccountFilter))]
+        public IActionResult Login(AccountLoginVM login)
+        {
+            //simulate a transaction
+            TempData[$"account_{login.AccountId}"] = true;
+
+            return RedirectToAction("TransactionHistory", new { accountId = login.AccountId, page = 0 });
+        }
+
+        public IActionResult Index(IList<string> errors = null)
+        {
+            AddErrors(errors);
             var result = _accountService.ReadAccount(UserId);
             return View(result);
         }
 
         public IActionResult AccountCreationForm(AccountCreationVM vm)
         {
+            //validate account number that we generate for user
             TempData["ValidateAccountNumber"] = vm.AccountNumber;
+            vm.UserId = UserId;
             return View(vm);
         }
 
@@ -57,9 +84,6 @@ namespace BankSystem.Controllers
 
                 if (vm.AccountNumber == validateAccountNumber)
                 {
-                    dto.UserId = UserId;
-                    dto.Password = PasswordHelper.HashPassword(dto.Password);
-
                     var result = _accountService.Create(dto);
 
                     if (result != null)
@@ -73,33 +97,104 @@ namespace BankSystem.Controllers
         }
 
         [Route("/AccountDetails/{accountId}")]
-        public IActionResult TransactionHistory(int? accountId, int page)
+        [ServiceFilter(typeof(AccountFilter))]
+        [ServiceFilter(typeof(TransactionFilter))]
+        public IActionResult TransactionHistory(int? accountId, int page = 0)
         {
+            
+
             int totalItem = 0;
-            var pagingVM = new PagingVM<TransactionHistoryDto>()
+            var pagingVM = new PagingVM<int, TransactionHistoryDto>()
             {
-                Items = _accountService.ReadHistory(UserId, accountId ?? 0, page, _appSettings.ItemPerPage, out totalItem),
+                Id = accountId.Value,
+                Items = _accountService.ReadHistory(UserId, accountId.Value, page, _appSettings.ItemPerPage, out totalItem),
                 Pager = new Pager(totalItem, page, _appSettings.ItemPerPage)
             };
+
             return View(pagingVM);
         }
 
         [Route("/Withdraw/{accountId}")]
-        public IActionResult WithdrawForm(int? accountId, int page)
+        [ServiceFilter(typeof(AccountFilter))]
+        [ServiceFilter(typeof(TransactionFilter))]
+        public IActionResult WithdrawForm(WithdrawDepositVM vm, IList<string> errors)
         {
-            return View();
+            AddErrors(errors);
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ServiceFilter(typeof(AccountFilter))]
+        [ServiceFilter(typeof(TransactionFilter))]
+        public IActionResult Withdraw(WithdrawDepositVM vm)
+        {
+            try
+            {
+                if (_accountService.UpdateBalance(vm.Money * -1, vm.AccountId))
+                {
+                    //end transaction
+                    EndTransaction(vm.AccountId);
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+
+                return RedirectToAction("WithdrawForm", new { vm = vm, errors = new List<string>() { ex.Message } });
+            }
+            catch (Exception ex)
+            {
+                EndTransaction(vm.AccountId);
+                return RedirectToAction("Index", new { errors = new List<string>() { ex.Message } });
+            }
+
+            return RedirectToAction("Index");
         }
 
         [Route("/Deposit/{accountId}")]
-        public IActionResult DepositForm(int? accountId)
+        [ServiceFilter(typeof(AccountFilter))]
+        [ServiceFilter(typeof(TransactionFilter))]
+        public IActionResult DepositForm(WithdrawDepositVM vm)
         {
-            return View();
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ServiceFilter(typeof(AccountFilter))]
+        [ServiceFilter(typeof(TransactionFilter))]
+        public IActionResult Deposit(WithdrawDepositVM vm)
+        {
+            try
+            {
+                if (_accountService.UpdateBalance(vm.Money, vm.AccountId))
+                {
+                    //end transaction
+                    EndTransaction(vm.AccountId);
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+
+                return RedirectToAction("DepositForm", new { vm = vm, errors = new List<string>() { ex.Message } });
+            }
+            catch (Exception ex)
+            {
+                EndTransaction(vm.AccountId);
+                return RedirectToAction("Index", new { errors = new List<string>() { ex.Message } });
+            }
+
+            return RedirectToAction("Index");
         }
 
         [Route("/FundTransfer/{accountId}")]
-        public IActionResult FundTransferForm(int? accountId)
+        [ServiceFilter(typeof(AccountFilter))]
+        [ServiceFilter(typeof(TransactionFilter))]
+        public IActionResult FundTransferForm(TransactionHistoryDto vm)
         {
-            return View();
+
+            return View(vm);
         }
 
         public IActionResult About()
@@ -119,6 +214,19 @@ namespace BankSystem.Controllers
         public IActionResult Error()
         {
             return View();
+        }
+
+        private void AddErrors(IList<string> errors)
+        {
+            foreach (var item in errors)
+            {
+                ModelState.AddModelError(string.Empty, item);
+            }
+        }
+
+        private void EndTransaction(int accountId)
+        {
+            TempData.Remove($"account_{accountId}");
         }
     }
 }

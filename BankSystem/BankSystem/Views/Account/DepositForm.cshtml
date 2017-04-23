@@ -1,11 +1,37 @@
+@model BankSystem.Models.AccountViewModels.WithdrawDepositVM
 @{
     ViewData["Title"] = "AccountDetails";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var sidebar = new BankSystem.Models.AccountViewModels.SideBarVM() { IsDeposit = true };
+    var sidebar = new BankSystem.Models.AccountViewModels.SideBarVM() { IsDeposit = true, AccountId = Model.AccountId };
 }
 
 
-
+<div class="row">
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 col-lg-offset-3 col-md-offset-3 col-sm-offset-3 col-xs-offset-3">
+        <div class="card card-mini">
+            <div class="card-header">
+                <div class="card-title">Deposit Form</div>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("Deposit", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(a => a.AccountId)
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon1">
+                            <i class="fa fa-dollar" aria-hidden="true"></i>
+                        </span>
+                        @Html.TextBoxFor(m => m.Money, new { @class = "form-control", type = "number", placeholder = "Please input your currency", aria_describedby = "basic-addon1" })
+                    </div>
+                    @Html.ValidationSummary("", new { @class = "text-danger" })
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success btn-submit"><i class="fa fa-reply" aria-hidden="true"></i> Deposit</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
 
 
 @section SideBar{

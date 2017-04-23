@@ -38,7 +38,7 @@
                                     <td class="text-middle"><span>@item.AccountName</span></td>
                                     <td class="text-middle"><span class="padding-5">@item.AccountNumber</span></td>
                                     <td class="right">
-                                        <a href="@Url.Action("TransactionHistory", "Account", new { accountId = item.Id })" class="btn btn-default btn-sm btn-success">
+                                        <a href="@Url.Action("AccountLogin", "Account", new { accountId = item.Id })" class="btn btn-default btn-sm btn-success">
                                             <div class="info">
                                                 <span class="title">
                                                     <i class="fa fa-eye" aria-hidden="true"></i>
@@ -65,6 +65,9 @@
                         <span class="text-warning text-center">You have no account for access. Please create one.</span>
                     </div>
                 }
+                <div>
+                    @Html.ValidationSummary("", new { @class = "text-danger" })
+                </div>
             <div class="form-line">
                 <div class="title">OR</div>
             </div>
@@ -96,6 +99,3 @@
     </div>
 </div>
 </div>
-
-
-

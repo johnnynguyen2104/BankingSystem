@@ -1,7 +1,8 @@
+@model BankSystem.Service.Dtos.TransactionHistoryDto
 @{
     ViewData["Title"] = "AccountDetails";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var sidebar = new BankSystem.Models.AccountViewModels.SideBarVM() { IsFundTransfer = true };
+    var sidebar = new BankSystem.Models.AccountViewModels.SideBarVM() { IsFundTransfer = true, AccountId = Model.AccountId };
 }
 
 

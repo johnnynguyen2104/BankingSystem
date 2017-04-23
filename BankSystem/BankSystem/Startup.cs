@@ -16,6 +16,7 @@ using BankSystem.Mapping;
 using BankSystem.IoCConfig;
 using AutoMapper;
 using BankSystem.Helpers;
+using BankSystem.Filters;
 
 namespace BankSystem
 {
@@ -69,6 +70,10 @@ namespace BankSystem
             //app settings
             var appSettings = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettings);
+
+            //filters
+            services.AddScoped<AccountFilter>();
+            services.AddScoped<TransactionFilter>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
