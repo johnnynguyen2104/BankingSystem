@@ -13,11 +13,15 @@ namespace BankSystem.Service.Implementations
     public class AccountService : IAccountService
     {
         private readonly IBaseRepository<int, Account> _accountRepo;
+        private readonly IBaseRepository<int, TransactionHistory> _transactionRepo;
         private readonly IMapper _mapper;
 
-        public AccountService(IBaseRepository<int, Account> accountRepo, IMapper mapper)
+        public AccountService(IBaseRepository<int, Account> accountRepo, 
+            IBaseRepository<int, TransactionHistory> transactionRepo, 
+            IMapper mapper)
         {
             _accountRepo = accountRepo;
+            _transactionRepo = transactionRepo;
             _mapper = mapper;
         }
 
@@ -48,6 +52,34 @@ namespace BankSystem.Service.Implementations
             var data = _accountRepo.Read(a => a.UserId == userId).ToList();
 
             return _mapper.Map<IList<AccountDto>>(data);
+        }
+
+        public IList<TransactionHistoryDto> ReadHistory(string userId, int accountId, int index, int itemPerPage, out int totalItem)
+        {
+            if (string.IsNullOrEmpty(userId) || accountId < 0)
+            {
+                totalItem = 0;
+                return new List<TransactionHistoryDto>();
+            }
+
+            var result = _transactionRepo.Read(a => a.AccountId == accountId && a.Account.UserId == userId)
+                                        .OrderByDescending(a => a.CreatedDate)
+                                        .Skip((index) * itemPerPage)
+                                        .Take(itemPerPage)
+                                        .Select(a => new TransactionHistoryDto()
+                                        {
+                                            AccountId = a.AccountId,
+                                            BalanceAtTime = a.BalanceAtTime,
+                                            CreatedDate = a.CreatedDate,
+                                            InteractionAccountNumber = a.InteractionAccount.AccountNumber,
+                                            Type = (TransactionTypeDto)a.Type,
+                                            Money = a.Money,
+                                            Note = a.Note
+                                        }).ToList();
+
+            totalItem = _transactionRepo.Read(a => a.AccountId == accountId && a.Account.UserId == userId).Count();
+
+            return result;
         }
 
         public AccountDto ReadOneById(int id)

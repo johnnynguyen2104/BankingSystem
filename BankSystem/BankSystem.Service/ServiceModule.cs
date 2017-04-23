@@ -18,6 +18,7 @@ namespace BankSystem.Service
             DataModule.InitIoc(services, connectionString);
 
             services.AddTransient<IBaseRepository<int, Account>, Repository<int, Account>>();
+            services.AddTransient<IBaseRepository<int, TransactionHistory>, Repository<int, TransactionHistory>>();
         }
     }
 

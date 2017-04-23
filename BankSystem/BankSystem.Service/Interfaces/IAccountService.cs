@@ -12,5 +12,7 @@ namespace BankSystem.Service.Interfaces
         /// </summary>
         /// <returns>Returning list of accounts</returns>
         IList<AccountDto> ReadAccount(string userId);
+
+        IList<TransactionHistoryDto> ReadHistory(string userId, int accountId, int index, int itemPerPage, out int totalItem);
     }
 }
