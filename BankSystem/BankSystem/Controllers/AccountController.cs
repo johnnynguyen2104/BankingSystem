@@ -8,6 +8,10 @@ using BankSystem.Service.Interfaces;
 using AutoMapper;
 using BankSystem.Service.Dtos;
 using BankSystem.Service.Helpers;
+using Microsoft.Extensions.Configuration;
+using BankSystem.Models;
+using BankSystem.Helpers;
+using Microsoft.Extensions.Options;
 
 namespace BankSystem.Controllers
 {
@@ -16,17 +20,22 @@ namespace BankSystem.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly IMapper _mapper;
+        private readonly IConfigurationRoot _configuration;
 
-        public AccountController(IAccountService accountService, IMapper mapper)
+        public string UserId { get { return User.Claims.SingleOrDefault(a => a.Type.Contains("nameidentifier"))?.Value; } }
+
+        private readonly AppSettings _appSettings;
+
+        public AccountController(IAccountService accountService, IMapper mapper, IOptions<AppSettings> appSettings)
         {
             _mapper = mapper;
             _accountService = accountService;
+            _appSettings = appSettings.Value;
         }
 
         public IActionResult Index()
         {
-            var userId = User.Claims.SingleOrDefault(a => a.Type.Contains("nameidentifier"))?.Value;
-            var result = _accountService.ReadAccount(userId);
+            var result = _accountService.ReadAccount(UserId);
             return View(result);
         }
 
@@ -48,7 +57,7 @@ namespace BankSystem.Controllers
 
                 if (vm.AccountNumber == validateAccountNumber)
                 {
-                    dto.UserId = User.Claims.SingleOrDefault(a => a.Type.Contains("nameidentifier"))?.Value;
+                    dto.UserId = UserId;
                     dto.Password = PasswordHelper.HashPassword(dto.Password);
 
                     var result = _accountService.Create(dto);
@@ -64,14 +73,19 @@ namespace BankSystem.Controllers
         }
 
         [Route("/AccountDetails/{accountId}")]
-        public IActionResult TransactionHistory(int? accountId)
+        public IActionResult TransactionHistory(int? accountId, int page)
         {
-
-            return View();
+            int totalItem = 0;
+            var pagingVM = new PagingVM<TransactionHistoryDto>()
+            {
+                Items = _accountService.ReadHistory(UserId, accountId ?? 0, page, _appSettings.ItemPerPage, out totalItem),
+                Pager = new Pager(totalItem, page, _appSettings.ItemPerPage)
+            };
+            return View(pagingVM);
         }
 
         [Route("/Withdraw/{accountId}")]
-        public IActionResult WithdrawForm(int? accountId)
+        public IActionResult WithdrawForm(int? accountId, int page)
         {
             return View();
         }

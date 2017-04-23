@@ -15,6 +15,7 @@ using BankSystem.Service;
 using BankSystem.Mapping;
 using BankSystem.IoCConfig;
 using AutoMapper;
+using BankSystem.Helpers;
 
 namespace BankSystem
 {
@@ -64,6 +65,10 @@ namespace BankSystem
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
+
+            //app settings
+            var appSettings = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(appSettings);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
