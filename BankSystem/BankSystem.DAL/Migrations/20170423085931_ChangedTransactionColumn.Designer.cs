@@ -8,9 +8,10 @@ using BankSystem.DAL.DomainModels;
 namespace BankSystem.DAL.Migrations
 {
     [DbContext(typeof(BankSystemDbContext))]
-    partial class BankSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20170423085931_ChangedTransactionColumn")]
+    partial class ChangedTransactionColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.1")
@@ -78,15 +79,11 @@ namespace BankSystem.DAL.Migrations
 
                     b.Property<int>("AccountId");
 
-                    b.Property<double>("BalanceAtTime");
-
                     b.Property<DateTime?>("CreatedDate");
 
                     b.Property<int>("InteractionAccountId");
 
                     b.Property<double>("Money");
-
-                    b.Property<string>("Note");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()

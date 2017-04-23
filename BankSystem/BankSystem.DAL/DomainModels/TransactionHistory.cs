@@ -10,12 +10,16 @@ namespace BankSystem.DAL.DomainModels
 
         public double Money { get; set; }
 
+        public double BalanceAtTime { get; set; }
+
         public int AccountId { get; set; }
         
-        public int DestinationAccountId { get; set; } // for fund transfer.
+        public int InteractionAccountId { get; set; } // for fund transfer & receive.
+
+        public string Note { get; set; }
 
         public Account Account { get; set; }
 
-        public Account DestinationAccount { get; set; } // for fund transfer.
+        public Account InteractionAccount { get; set; } // for fund transfer & receive .
     }
 }

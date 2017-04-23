@@ -78,8 +78,8 @@ namespace BankSystem.DAL.DomainModels
 
             builder.Entity<Account>()
                 .HasMany(a => a.TransferredHistories)
-                .WithOne(a => a.DestinationAccount)
-                .HasForeignKey(a => a.DestinationAccountId)
+                .WithOne(a => a.InteractionAccount)
+                .HasForeignKey(a => a.InteractionAccountId)
                 .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict); ;
         }
     }

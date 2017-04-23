@@ -8,9 +8,10 @@ using BankSystem.DAL.DomainModels;
 namespace BankSystem.DAL.Migrations
 {
     [DbContext(typeof(BankSystemDbContext))]
-    partial class BankSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20170423090910_AddTransactionColumns")]
+    partial class AddTransactionColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.1")

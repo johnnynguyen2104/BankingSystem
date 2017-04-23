@@ -8,6 +8,7 @@ namespace BankSystem.DAL.DomainModels
     {
         FundTransfer = 0,
         Deposit = 1,
-        Withdraw = 2
+        Withdraw = 2,
+        Received = 3
     }
 }
