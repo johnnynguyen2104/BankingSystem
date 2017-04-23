@@ -7,6 +7,11 @@ namespace BankSystem.Service.Interfaces
 {
     public interface IAccountService : IBaseService<int, AccountDto>
     {
+
+        bool UpdateBalance(double value, int accountId);
+
+        bool IsAccountExisted(int? accountId, string userId, string password = "");
+
         /// <summary>
         /// Returning list of accounts
         /// </summary>

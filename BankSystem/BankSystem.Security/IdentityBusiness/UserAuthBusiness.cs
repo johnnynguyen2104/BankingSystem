@@ -32,6 +32,7 @@ namespace BankSystem.Security.IdentityBusiness
 
         public Task<SignInResult> PasswordSignInAsync(string userName, string password, bool isPersistent, bool shouldLockout)
         {
+            
             var taskResult = SignInManager.PasswordSignInAsync(userName, password, isPersistent, shouldLockout);
             return taskResult;
         }
@@ -69,7 +70,7 @@ namespace BankSystem.Security.IdentityBusiness
         public Task SignInAsync(UserInformation user, bool isPersistent)
         {
             var taskResult = SignInManager.SignInAsync(Mapper.Map<User>(user), isPersistent);
-
+          
             return taskResult;
         }
 
@@ -182,6 +183,18 @@ namespace BankSystem.Security.IdentityBusiness
         public string GetUserName(ClaimsPrincipal claim)
         {
             return UserManager.GetUserName(claim);
+        }
+
+        public Task<IdentityResult> AddClaims(ClaimsPrincipal claimPrincipal, IList<Claim> claim)
+        {
+            var user = UserManager.GetUserAsync(claimPrincipal).Result;
+            return UserManager.AddClaimsAsync(user, claim);
+        }
+
+        public Task<IdentityResult> RemoveClaims(ClaimsPrincipal claimPrincipal, IList<Claim> claim)
+        {
+            var user = UserManager.GetUserAsync(claimPrincipal).Result;
+            return UserManager.RemoveClaimsAsync(user, claim);
         }
     }
 }

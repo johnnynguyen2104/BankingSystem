@@ -13,6 +13,9 @@ namespace BankSystem.Security.IdentityBusiness
 {
     public interface IUserAuthBusiness
     {
+        Task<IdentityResult> RemoveClaims(ClaimsPrincipal claimPrincipal, IList<Claim> claim);
+        Task<IdentityResult> AddClaims(ClaimsPrincipal claimPrincipal, IList<Claim> claim);
+
         string GetUserName(ClaimsPrincipal claim);
 
         bool IsSignedIn(ClaimsPrincipal claim);
