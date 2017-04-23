@@ -9,7 +9,7 @@ namespace BankSystem.DAL.DomainModels
     {
         public string AccountName { get; set; }
 
-        public string AccountNumber { get; } = Guid.NewGuid().ToString();
+        public string AccountNumber { get; set; }
 
         public double Balance { get; set; }
 
