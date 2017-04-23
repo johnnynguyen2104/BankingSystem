@@ -12,6 +12,9 @@ using Microsoft.Extensions.Logging;
 using BankSystem.Security;
 using BankSystem.Security.Services;
 using BankSystem.Service;
+using BankSystem.Mapping;
+using BankSystem.IoCConfig;
+using AutoMapper;
 
 namespace BankSystem
 {
@@ -39,19 +42,23 @@ namespace BankSystem
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            IdentityConfig.RegisterIdentity(services, Configuration.GetConnectionString("BankSystemDb"));
+
+            IdentityModule.RegisterIdentity(services);
+            ServiceModule.InitIoC(services, Configuration.GetConnectionString("BankSystemDb"));
+            InitializeIoC.Init(services);
 
             //Register Mapper
             var config = new AutoMapper.MapperConfiguration(cfg =>
             {
                 cfg.AddProfile(new ServiceMapper());
                 cfg.AddProfile(new SecurityMapper());
+                cfg.AddProfile(new ViewModelMapper());
             });
 
             var mapper = config.CreateMapper();
-            services.AddSingleton(mapper);
+            services.AddSingleton<IMapper>(mapper);
             //
-
+            services.AddSession();
             services.AddMvc();
 
             // Add application services.
@@ -75,6 +82,8 @@ namespace BankSystem
             {
                 app.UseExceptionHandler("/Account/Error");
             }
+
+            app.UseSession();
 
             app.UseStaticFiles();
 

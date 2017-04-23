@@ -37,60 +37,7 @@
 <body>
     <div class="app app-default">
 
-        <aside class="app-sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <a class="sidebar-brand" href="#"><span class="highlight">Banking</span> System</a>
-                <button type="button" class="sidebar-toggle">
-                    <i class="fa fa-times"></i>
-                </button>
-            </div>
-            <div class="sidebar-menu">
-                <ul class="sidebar-nav">
-                    <li class="active">
-                        <a href="@Url.Action("Index", "Account")">
-                            <div class="icon">
-                                <i class="fa fa-history" aria-hidden="true"></i>
-                            </div>
-                            <div class="title">Transaction History</div>
-                        </a>
-                    </li>
-                    <li class="dropdown ">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <div class="icon">
-                                <i class="fa fa-share" aria-hidden="true"></i>
-                            </div>
-                            <div class="title">Withdraw Money</div>
-                        </a>
-                    </li>
-                    <li class="menu.messaging">
-                        <a href="#">
-                            <div class="icon">
-                                <i class="fa fa-reply" aria-hidden="true"></i>
-                            </div>
-                            <div class="title">Deposit</div>
-                        </a>
-                    </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <div class="icon">
-                                <i class="fa fa-paper-plane" aria-hidden="true"></i>
-                            </div>
-                            <div class="title">Fund Transfer</div>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <div class="sidebar-footer">
-                <ul class="menu">
-                    <li>
-                        <a href="/" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-cogs" aria-hidden="true"></i>
-                        </a>
-                    </li>
-                    <li><a href="#"><span class="flag-icon flag-icon-th flag-icon-squared"></span></a></li>
-                </ul>
-            </div>
-        </aside>
+        @RenderSection("SideBar", false)
 
         <script type="text/ng-template" id="sidebar-dropdown.tpl.html">
             <div class="dropdown-background">
@@ -121,10 +68,9 @@
                             </li>
                         </ul>
                         <ul class="nav navbar-nav navbar-left">
-                            <li class="navbar-title">Dashboard</li>
+                            <li class="navbar-title"><h3>Account's Balance:</h3> </li>
                             <li class="navbar-search hidden-sm">
-                                <input id="search" type="text" placeholder="Search.." autocomplete="off">
-                                <button class="btn-search"><i class="fa fa-search"></i></button>
+                                <h3>$100.000.000</h3>
                             </li>
                         </ul>
                         <ul class="nav navbar-nav navbar-right">

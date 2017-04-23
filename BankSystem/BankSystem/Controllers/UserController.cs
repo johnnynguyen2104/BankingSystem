@@ -75,6 +75,7 @@ namespace BankSystem.Controllers
                     _logger.LogInformation(1, "User logged in.");
                     return RedirectToLocal(returnUrl);
                 }
+
                
                 if (result.IsLockedOut)
                 {

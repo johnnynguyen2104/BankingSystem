@@ -1,5 +1,101 @@
-﻿@{ 
+﻿@model IList<BankSystem.Service.Dtos.AccountDto>
+@{ 
     Layout = "~/Views/Shared/_AllGreenLayout.cshtml";
 }
 
-<span>Hello World</span>
+<div class="app-body">
+    <div class="loader-container text-center">
+        <div class="icon">
+            <div class="sk-folding-cube">
+                <div class="sk-cube1 sk-cube"></div>
+                <div class="sk-cube2 sk-cube"></div>
+                <div class="sk-cube4 sk-cube"></div>
+                <div class="sk-cube3 sk-cube"></div>
+            </div>
+        </div>
+        <div class="title">Logging in...</div>
+    </div>
+    <div class="app-block">
+        <div class="app-form">
+            <div class="form-header">
+                <div class="app-brand"><span class="highlight">Banking</span> System</div>
+            </div>
+            <div >
+                <table class="table card-table">
+                    <thead>
+                        <tr>
+                            <th>Account Name</th>
+                            <th>Account Number</th>
+                            <th class="right">#</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null)
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-middle"><span>@item.AccountName</span></td>
+                                    <td class="text-middle"><span class="padding-5">@item.AccountNumber</span></td>
+                                    <td class="right">
+                                        <a href="@Url.Action("TransactionHistory", "Account", new { accountId = item.Id })" class="btn btn-default btn-sm btn-success">
+                                            <div class="info">
+                                                <span class="title">
+                                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                                    Access
+                                                </span>
+                                            </div> 
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+                </table>
+                @if (Model != null && Model.Count > 0)
+                {
+                    <div>
+                        <span class="text-info">Please choose one of accounts above that you wish to access.</span>
+                    </div>
+                }
+                else
+                {
+                    <div align="center">
+                        <span class="text-warning text-center">You have no account for access. Please create one.</span>
+                    </div>
+                }
+            <div class="form-line">
+                <div class="title">OR</div>
+            </div>
+            <div class="form-footer">
+                <div class="row">
+                    <div class="col-lg-6 col-xs-6 col-sm-6 col-md-6">
+                        <a href="@Url.Action("AccountCreationForm", "Account")" class="btn btn-default btn-sm btn-success">
+                            <div class="info">
+                                <span class="title">
+                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                    New Account
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-lg-6 col-xs-6 col-sm-6 col-md-6">
+                        <a href="@Url.Action("Logout", "User")" class="btn btn-default btn-sm btn-danger">
+                            <div class="info">
+                                <span class="title">
+                                    <i class="fa fa-sign-out" aria-hidden="true"></i>
+                                    Log Out
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+
