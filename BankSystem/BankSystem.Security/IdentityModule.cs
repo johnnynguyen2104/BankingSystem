@@ -1,28 +1,19 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using BankSystem.DAL.DomainModels;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using BankSystem.Security.IdentityBusiness;
 
 namespace BankSystem.Security
 {
-    public class IdentityConfig
+    public class IdentityModule
     {
-        public static void RegisterIdentity(IServiceCollection services, string connectionString)
+        public static void RegisterIdentity(IServiceCollection services)
         {
-            // Add framework services.
-            services.AddDbContext<BankSystemDbContext>(options =>
-                options.UseSqlServer(connectionString));
-
             services.AddIdentity<User, Role>(options => {
                 options.Cookies.ApplicationCookie.LoginPath = "/User/Login";
                 options.Password.RequireDigit = false;
