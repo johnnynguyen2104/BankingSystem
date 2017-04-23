@@ -23,9 +23,13 @@ namespace BankSystem.DAL.Migrations
 
                     b.Property<string>("AccountName");
 
+                    b.Property<string>("AccountNumber");
+
                     b.Property<double>("Balance");
 
-                    b.Property<DateTime>("CreatedDate");
+                    b.Property<DateTime?>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValueSql("getutcdate()");
 
                     b.Property<string>("Password");
 
@@ -65,6 +69,36 @@ namespace BankSystem.DAL.Migrations
                         .HasName("RoleNameIndex");
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("BankSystem.DAL.DomainModels.TransactionHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("AccountId");
+
+                    b.Property<DateTime?>("CreatedDate");
+
+                    b.Property<int>("DestinationAccountId");
+
+                    b.Property<double>("Money");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
+
+                    b.Property<int>("Type");
+
+                    b.Property<DateTime?>("UpdatedDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("DestinationAccountId");
+
+                    b.ToTable("TransactionHistory");
                 });
 
             modelBuilder.Entity("BankSystem.DAL.DomainModels.User", b =>
@@ -206,6 +240,17 @@ namespace BankSystem.DAL.Migrations
                     b.HasOne("BankSystem.DAL.DomainModels.User", "User")
                         .WithMany("Accounts")
                         .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("BankSystem.DAL.DomainModels.TransactionHistory", b =>
+                {
+                    b.HasOne("BankSystem.DAL.DomainModels.Account", "Account")
+                        .WithMany("Histories")
+                        .HasForeignKey("AccountId");
+
+                    b.HasOne("BankSystem.DAL.DomainModels.Account", "DestinationAccount")
+                        .WithMany("TransferredHistories")
+                        .HasForeignKey("DestinationAccountId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRoleClaim<string>", b =>

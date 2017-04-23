@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace BankSystem.DAL.Migrations
 {
-    public partial class InitDb : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -90,9 +90,11 @@ namespace BankSystem.DAL.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     AccountName = table.Column<string>(nullable: true),
+                    AccountNumber = table.Column<string>(nullable: true),
                     Balance = table.Column<double>(nullable: false),
-                    CreatedDate = table.Column<DateTime>(nullable: false),
+                    CreatedDate = table.Column<DateTime>(nullable: true, defaultValueSql: "getutcdate()"),
                     Password = table.Column<string>(nullable: true),
+                    RowVersion = table.Column<byte[]>(rowVersion: true, nullable: true),
                     UpdatedDate = table.Column<DateTime>(nullable: true),
                     UserId = table.Column<string>(nullable: true)
                 },
@@ -172,6 +174,37 @@ namespace BankSystem.DAL.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "TransactionHistory",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    AccountId = table.Column<int>(nullable: false),
+                    CreatedDate = table.Column<DateTime>(nullable: true),
+                    DestinationAccountId = table.Column<int>(nullable: false),
+                    Money = table.Column<double>(nullable: false),
+                    RowVersion = table.Column<byte[]>(rowVersion: true, nullable: true),
+                    Type = table.Column<int>(nullable: false),
+                    UpdatedDate = table.Column<DateTime>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TransactionHistory", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TransactionHistory_Account_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "Account",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_TransactionHistory_Account_DestinationAccountId",
+                        column: x => x.DestinationAccountId,
+                        principalTable: "Account",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Account_UserId",
                 table: "Account",
@@ -182,6 +215,16 @@ namespace BankSystem.DAL.Migrations
                 table: "Roles",
                 column: "NormalizedName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TransactionHistory_AccountId",
+                table: "TransactionHistory",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TransactionHistory_DestinationAccountId",
+                table: "TransactionHistory",
+                column: "DestinationAccountId");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
@@ -218,7 +261,7 @@ namespace BankSystem.DAL.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Account");
+                name: "TransactionHistory");
 
             migrationBuilder.DropTable(
                 name: "RoleClaims");
@@ -234,6 +277,9 @@ namespace BankSystem.DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "UserTokens");
+
+            migrationBuilder.DropTable(
+                name: "Account");
 
             migrationBuilder.DropTable(
                 name: "Roles");

@@ -66,6 +66,21 @@ namespace BankSystem.DAL.DomainModels
             builder.Entity<Account>()
                 .Property(p => p.RowVersion).IsConcurrencyToken();
 
+            builder.Entity<Account>().Property(e => e.CreatedDate)
+                .HasDefaultValueSql("getutcdate()");
+
+            builder.Entity<Account>()
+                .HasMany(a => a.Histories)
+                .WithOne(a => a.Account)
+                .HasForeignKey(a => a.AccountId)
+                .IsRequired()
+                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+
+            builder.Entity<Account>()
+                .HasMany(a => a.TransferredHistories)
+                .WithOne(a => a.DestinationAccount)
+                .HasForeignKey(a => a.DestinationAccountId)
+                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict); ;
         }
     }
 }

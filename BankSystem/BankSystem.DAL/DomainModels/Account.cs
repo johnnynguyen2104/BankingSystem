@@ -18,5 +18,9 @@ namespace BankSystem.DAL.DomainModels
         public string UserId { get; set; }
 
         public virtual User User { get; set; }
+
+        public virtual ICollection<TransactionHistory> Histories { get; set; }
+
+        public virtual ICollection<TransactionHistory> TransferredHistories { get; set; }
     }
 }
