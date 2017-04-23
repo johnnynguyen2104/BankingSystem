@@ -1,0 +1,13 @@
+@{
+    ViewData["Title"] = "AccountDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var sidebar = new BankSystem.Models.AccountViewModels.SideBarVM() { IsDeposit = true };
+}
+
+
+
+
+
+@section SideBar{
+    @Html.Partial("_SideBarPartial", sidebar)
+}

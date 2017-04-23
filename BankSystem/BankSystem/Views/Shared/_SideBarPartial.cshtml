@@ -1,0 +1,59 @@
+﻿@model BankSystem.Models.AccountViewModels.SideBarVM
+@{ 
+    Layout = "";
+}
+
+
+    <aside class="app-sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a class="sidebar-brand" href="#"><span class="highlight">Banking</span> System</a>
+            <button type="button" class="sidebar-toggle">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+        <div class="sidebar-menu">
+            <ul class="sidebar-nav">
+                <li class="@(Model.IsTransactionHistory ? "active" : "")">
+                    <a href="@Url.Action("TransactionHistory", "Account", new { accountId = Model.AccountId })">
+                        <div class="icon">
+                            <i class="fa fa-history" aria-hidden="true"></i>
+                        </div>
+                        <div class="title">Transaction History</div>
+                    </a>
+                </li>
+                <li class="@(Model.IsWithdraw ? "active" : "")">
+                    <a href="@Url.Action("WithdrawForm", "Account", new { accountId = Model.AccountId })">
+                        <div class="icon">
+                            <i class="fa fa-share" aria-hidden="true"></i>
+                        </div>
+                        <div class="title">Withdraw Money</div>
+                    </a>
+                </li>
+                <li class="@(Model.IsDeposit ? "active" : "")">
+                    <a href="@Url.Action("DepositForm", "Account", new { accountId = Model.AccountId })">
+                        <div class="icon">
+                            <i class="fa fa-reply" aria-hidden="true"></i>
+                        </div>
+                        <div class="title">Deposit</div>
+                    </a>
+                </li>
+                <li class="@(Model.IsFundTransfer ? "active" : "")">
+                    <a href="@Url.Action("FundTransferForm", "Account", new { accountId = Model.AccountId })">
+                        <div class="icon">
+                            <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                        </div>
+                        <div class="title">Fund Transfer</div>
+                    </a>
+                </li>
+                <li class="">
+                    <a href="@Url.Action("Index", "Account")">
+                        <div class="icon">
+                            <i class="fa fa-hand-o-left" aria-hidden="true"></i>
+                        </div>
+                        <div class="title">Back To Account List</div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+    </aside>
