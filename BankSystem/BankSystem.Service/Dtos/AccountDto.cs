@@ -6,6 +6,8 @@ namespace BankSystem.Service.Dtos
 {
     public class AccountDto : BaseDto<int>
     {
+        public string AccountNumber { get; set; }
+
         public string AccountName { get; set; }
 
         public double Balance { get; set; }

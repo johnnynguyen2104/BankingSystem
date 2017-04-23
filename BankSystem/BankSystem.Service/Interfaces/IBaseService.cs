@@ -8,11 +8,6 @@ namespace BankSystem.Service.Interfaces
     public interface IBaseService<TKey, TEntity> 
         where TEntity : BaseDto<TKey> where TKey : struct
     {
-        /// <summary>
-        /// Returning list of entities
-        /// </summary>
-        /// <returns>Returning list of entities</returns>
-        IList<TEntity> Read();
 
         /// <summary>
         /// Returning an entity base on expression

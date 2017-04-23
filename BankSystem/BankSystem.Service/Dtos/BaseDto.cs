@@ -8,7 +8,7 @@ namespace BankSystem.Service.Dtos
     {
         public TKey Id { get; set; }
 
-        public DateTime CreatedDate { get; set; }
+        public DateTime? CreatedDate { get; set; }
 
         public DateTime? UpdatedDate { get; set; }
     }
