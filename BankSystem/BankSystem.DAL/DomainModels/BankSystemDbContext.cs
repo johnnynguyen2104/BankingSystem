@@ -69,6 +69,9 @@ namespace BankSystem.DAL.DomainModels
             builder.Entity<Account>().Property(e => e.CreatedDate)
                 .HasDefaultValueSql("getutcdate()");
 
+            builder.Entity<TransactionHistory>().Property(e => e.CreatedDate)
+                .HasDefaultValueSql("getutcdate()");
+
             builder.Entity<Account>()
                 .HasMany(a => a.Histories)
                 .WithOne(a => a.Account)

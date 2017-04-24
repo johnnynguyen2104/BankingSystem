@@ -80,11 +80,11 @@ namespace BankSystem.DAL.Migrations
 
                     b.Property<double>("BalanceAtTime");
 
-                    b.Property<DateTime?>("CreatedDate");
+                    b.Property<DateTime?>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValueSql("getutcdate()");
 
-                    b.Property<int>("InteractionAccountId");
-
-                    b.Property<double>("Money");
+                    b.Property<int?>("InteractionAccountId");
 
                     b.Property<string>("Note");
 
@@ -95,6 +95,8 @@ namespace BankSystem.DAL.Migrations
                     b.Property<int>("Type");
 
                     b.Property<DateTime?>("UpdatedDate");
+
+                    b.Property<double>("Value");
 
                     b.HasKey("Id");
 

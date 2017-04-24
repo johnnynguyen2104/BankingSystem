@@ -8,13 +8,13 @@ namespace BankSystem.DAL.DomainModels
     {
         public TransactionType Type { get; set; }
 
-        public double Money { get; set; }
+        public double Value { get; set; }
 
         public double BalanceAtTime { get; set; }
 
         public int AccountId { get; set; }
         
-        public int InteractionAccountId { get; set; } // for fund transfer & receive.
+        public int? InteractionAccountId { get; set; } // for fund transfer & receive.
 
         public string Note { get; set; }
 
