@@ -82,10 +82,10 @@ namespace BankSystem.Service.Implementations
                 totalItem = 0;
                 return new List<TransactionHistoryDto>();
             }
-
+            index = index <= 0 ? 1 : index;
             var result = _transactionRepo.Read(a => a.AccountId == accountId && a.Account.UserId == userId)
                                         .OrderByDescending(a => a.CreatedDate)
-                                        .Skip((index) * itemPerPage)
+                                        .Skip((index - 1) * itemPerPage)
                                         .Take(itemPerPage)
                                         .Select(a => new TransactionHistoryDto()
                                         {
@@ -94,7 +94,7 @@ namespace BankSystem.Service.Implementations
                                             CreatedDate = a.CreatedDate,
                                             InteractionAccountNumber = a.InteractionAccount.AccountNumber,
                                             Type = (TransactionTypeDto)a.Type,
-                                            Money = a.Money,
+                                            Value = a.Value,
                                             Note = a.Note
                                         }).ToList();
 
@@ -103,10 +103,58 @@ namespace BankSystem.Service.Implementations
             return result;
         }
 
+        public AccountDto ReadOneAccountByNumber(string numberAccount)
+        {
+
+            if (string.IsNullOrEmpty(numberAccount))
+            {
+                return null;
+            }
+            var result = _accountRepo.ReadOne(a => a.AccountNumber == numberAccount);
+
+            return result != null ? _mapper.Map<AccountDto>(result) : null;
+        }
+
         public AccountDto ReadOneById(int id)
         {
             var result = _accountRepo.ReadOne(a => a.Id == id);
             return result == null ? null : _mapper.Map<AccountDto>(result);
+        }
+
+        public bool TransferMoney(int accountId, double value, int desAccountId)
+        {
+            var account = _accountRepo.ReadOne(a => a.Id == accountId);
+            var desAccount = _accountRepo.ReadOne(a => a.Id == desAccountId);
+
+            account.Balance -= value;
+            desAccount.Balance += value;
+
+            if (account.Balance < 0)
+            {
+                throw new Exception("Account dont have enough money. Please try again.");
+            }
+
+            _accountRepo.Update(account);
+            _accountRepo.Update(desAccount);
+
+            var completed = (_accountRepo.CommitChanges() > 0);
+
+            if (completed)
+            {
+                _transactionRepo.Create(new TransactionHistory()
+                {
+                    AccountId = accountId,
+                    InteractionAccountId = desAccountId,
+                    Type = TransactionType.FundTransfer,
+                    Value = value,
+                    BalanceAtTime = account.Balance
+                });
+
+                _transactionRepo.CommitChanges();
+            }
+
+            return completed;
+
         }
 
         public void Update(AccountDto entity)
@@ -125,7 +173,22 @@ namespace BankSystem.Service.Implementations
             }
             _accountRepo.Update(entity);
 
-            return (_accountRepo.CommitChanges() > 0);
+            var completed = (_accountRepo.CommitChanges() > 0);
+
+            if (completed)
+            {
+                _transactionRepo.Create(new TransactionHistory()
+                {
+                    AccountId = accountId,
+                    Type = (value < 0) ? TransactionType.Withdraw : TransactionType.Deposit,
+                    Value = value,
+                    BalanceAtTime = entity.Balance
+                });
+
+                _transactionRepo.CommitChanges();
+            }
+
+            return completed;
         }
     }
 }

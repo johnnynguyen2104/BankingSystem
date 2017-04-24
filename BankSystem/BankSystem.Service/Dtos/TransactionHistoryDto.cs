@@ -8,7 +8,7 @@ namespace BankSystem.Service.Dtos
     {
         public TransactionTypeDto Type { get; set; }
 
-        public double Money { get; set; }
+        public double Value { get; set; }
 
         public double BalanceAtTime { get; set; }
 

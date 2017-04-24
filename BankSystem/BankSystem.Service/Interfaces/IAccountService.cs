@@ -8,6 +8,10 @@ namespace BankSystem.Service.Interfaces
     public interface IAccountService : IBaseService<int, AccountDto>
     {
 
+        bool TransferMoney(int accountId, double value, int desAccountId);
+
+        AccountDto ReadOneAccountByNumber(string numberAccount);
+
         bool UpdateBalance(double value, int accountId);
 
         bool IsAccountExisted(int? accountId, string userId, string password = "");
