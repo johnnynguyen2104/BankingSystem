@@ -12,19 +12,27 @@
                 <div class="card-title">Fund Transfer Form</div>
             </div>
             <div class="card-body">
-                @using (Html.BeginForm("FundTransferConfirm", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                @using (Html.BeginForm("Transfer", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
                 {
                     @Html.AntiForgeryToken()
                     @Html.HiddenFor(a => a.AccountId)
                     <div class="input-group">
-                        <span class="input-group-addon" id="basic-addon1">
+                        <span class="input-group-addon" id="basic-addon2">
                             <i class="fa fa-user" aria-hidden="true"></i>
                         </span>
-                        @Html.TextBoxFor(m => m.AccountDesNumber, new { @class = "form-control", placeholder = "Destination account number.", aria_describedby = "basic-addon1" })
+                        @Html.TextBoxFor(m => m.AccountDesName, new { disabled = "disabled", @class = "form-control", placeholder = "Account Number that you wish to transfer", aria_describedby = "basic-addon2" })
+                        @Html.HiddenFor(a => a.AccountDestinationId)
+                    </div>
+                    <h3 id="account"></h3>
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon1">
+                            <i class="fa fa-dollar" aria-hidden="true"></i>
+                        </span>
+                        @Html.TextBoxFor(m => m.Value, new { @class = "form-control", type = "number", placeholder = "Please input your currency", aria_describedby = "basic-addon1" })
                     </div>
                     @Html.ValidationSummary("", new { @class = "text-danger" })
                     <div class="text-center">
-                        <button type="submit" class="btn btn-success btn-submit"><i class="fa fa-arrow-right" aria-hidden="true"></i> Next</button>
+                        <button type="submit" class="btn btn-success btn-submit"><i class="fa fa-paper-plane" aria-hidden="true"></i> Transfer</button>
                     </div>
                 }
             </div>
@@ -33,11 +41,6 @@
 </div>
 
 
-@section Scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-}
-
 @section SideBar{
     @Html.Partial("_SideBarPartial", sidebar)
 }
-

@@ -46,11 +46,11 @@
                     </a>
                 </li>
                 <li class="">
-                    <a href="@Url.Action("Index", "Account")">
+                    <a href="@Url.Action("BalanceCheking", "Account", new { account = Model.AccountId })">
                         <div class="icon">
-                            <i class="fa fa-hand-o-left" aria-hidden="true"></i>
+                            <i class="fa fa-dollar" aria-hidden="true"></i>
                         </div>
-                        <div class="title">End Transaction</div>
+                        <div class="title">Balance Checking</div>
                     </a>
                 </li>
             </ul>

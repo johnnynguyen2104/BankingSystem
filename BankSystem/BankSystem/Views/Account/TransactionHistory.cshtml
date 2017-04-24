@@ -19,7 +19,7 @@
                             <th>Transaction Type</th>
                             <th>Interaction Account</th>
                             <th class="right">Value</th>
-                            <th class="right">#</th>
+                            <th class="right">Balance At Time</th>
                             <th>Note</th>
                         </tr>
                     </thead>
@@ -30,7 +30,7 @@
                                 <td>@item.CreatedDate</td>
                                 <td>@item.Type.ToString()</td>
                                 <td>@item.InteractionAccountNumber</td>
-                                <td>@item.Money</td>
+                                <td>@item.Value</td>
                                 <td>@item.BalanceAtTime</td>
                                 <td>@item.Note</td>
                             </tr>
@@ -45,7 +45,39 @@
                     </tbody>
                 </table>
 
-               @Html.Partial("_PagingPartial", Model.Pager)
+                <div class="margin-left-10">
+                    @if (Model.Pager.EndPage > 1)
+                    {
+                        <ul class="pagination">
+                            @if (Model.Pager.CurrentPage > 1)
+                            {
+                                <li>
+                                    <a href="@Url.Action("TransactionHistory","Account")">First</a>
+                                </li>
+                                <li>
+                                    <a href="@Url.Action("TransactionHistory","Account", new { page = (Model.Pager.CurrentPage - 1) })">Previous</a>
+                                </li>
+                            }
+
+                            @for (var page = Model.Pager.StartPage; page <= Model.Pager.EndPage; page++)
+                            {
+                                <li class="@(page == Model.Pager.CurrentPage ? "active" : "")">
+                                    <a href="@Url.Action("TransactionHistory","Account", new { page = page })">@page</a>
+                                </li>
+                            }
+
+                            @if (Model.Pager.CurrentPage < Model.Pager.TotalPages)
+                            {
+                                <li>
+                                    <a href="@Url.Action("TransactionHistory","Account", new { page = (Model.Pager.CurrentPage + 1) })">Next</a>
+                                </li>
+                                <li>
+                                    <a href="@Url.Action("TransactionHistory","Account", new { page = (Model.Pager.TotalPages) })">Last</a>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
             </div>
         </div>
     </div>

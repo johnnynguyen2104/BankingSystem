@@ -57,11 +57,11 @@ namespace BankSystem.Controllers
             return RedirectToAction("TransactionHistory", new { accountId = login.AccountId, page = 0 });
         }
 
-        public IActionResult Index(IList<string> errors = null)
+        public IActionResult Index(IList<string> errors = null, bool? transactionCompleted = null)
         {
             AddErrors(errors);
-            var result = _accountService.ReadAccount(UserId);
-            return View(result);
+            var vm = new IndexAccountVM() { Accounts = _accountService.ReadAccount(UserId), TransactionCompleted = transactionCompleted };
+            return View(vm);
         }
 
         public IActionResult AccountCreationForm(AccountCreationVM vm)
@@ -99,9 +99,8 @@ namespace BankSystem.Controllers
         [Route("/AccountDetails/{accountId}")]
         [ServiceFilter(typeof(AccountFilter))]
         [ServiceFilter(typeof(TransactionFilter))]
-        public IActionResult TransactionHistory(int? accountId, int page = 0)
+        public IActionResult TransactionHistory(int? accountId, int page = 1)
         {
-            
 
             int totalItem = 0;
             var pagingVM = new PagingVM<int, TransactionHistoryDto>()
@@ -134,7 +133,7 @@ namespace BankSystem.Controllers
                 {
                     //end transaction
                     EndTransaction(vm.AccountId);
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", new { transactionCompleted = true });
                 }
             }
             catch (DbUpdateConcurrencyException ex)
@@ -171,7 +170,7 @@ namespace BankSystem.Controllers
                 {
                     //end transaction
                     EndTransaction(vm.AccountId);
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", new { transactionCompleted = true });
                 }
             }
             catch (DbUpdateConcurrencyException ex)
@@ -191,24 +190,70 @@ namespace BankSystem.Controllers
         [Route("/FundTransfer/{accountId}")]
         [ServiceFilter(typeof(AccountFilter))]
         [ServiceFilter(typeof(TransactionFilter))]
-        public IActionResult FundTransferForm(TransactionHistoryDto vm)
+        public IActionResult FundTransferForm(FundTransferVM vm)
         {
 
             return View(vm);
         }
 
-        public IActionResult About()
+        [HttpPost]
+        [Route("/Confirm/{accountId}")]
+        [ServiceFilter(typeof(AccountFilter))]
+        [ServiceFilter(typeof(TransactionFilter))]
+        public IActionResult FundTransferConfirm(FundTransferVM vm, IList<string> errors)
         {
-            ViewData["Message"] = "Your application description page.";
+            AddErrors(errors);
+            var accountDto = _accountService.ReadOneAccountByNumber(vm.AccountDesNumber);
 
-            return View();
+            if (accountDto == null)
+            {
+                AddErrors(new List<string>() { "Invalid account number." });
+                vm.AccountDesNumber = "";
+                return View("FundTransferForm", vm);
+            }
+
+            vm.AccountDesName = accountDto.AccountName;
+            vm.AccountDestinationId = accountDto.Id;
+            TempData["ValidateAccountDesId"] = accountDto.Id;
+
+            return View(vm);
         }
 
-        public IActionResult Contact()
+        [HttpPost]
+        [ServiceFilter(typeof(AccountFilter))]
+        [ServiceFilter(typeof(TransactionFilter))]
+        public IActionResult Transfer(FundTransferVM vm)
         {
-            ViewData["Message"] = "Your contact page.";
+            try
+            {
+                if (_accountService.TransferMoney(vm.AccountId, vm.Value, vm.AccountDestinationId))
+                {
+                    //end transaction
+                    EndTransaction(vm.AccountId);
+                    return RedirectToAction("Index", new { transactionCompleted = true });
+                }
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
 
-            return View();
+                return RedirectToAction("FundTransferConfirm", new { vm = vm, errors = new List<string>() { ex.Message } });
+            }
+            catch (Exception ex)
+            {
+                EndTransaction(vm.AccountId);
+                return RedirectToAction("Index", new { errors = new List<string>() { ex.Message } });
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        [Route("/Balance/{accountId}")]
+        [ServiceFilter(typeof(AccountFilter))]
+        [ServiceFilter(typeof(TransactionFilter))]
+        public IActionResult BalanceCheking(int? accountId)
+        {
+            var vm = new BalanceCheckingVM() { AccountId = accountId.Value, Balance = _accountService.ReadOneById(accountId.Value).Balance };
+            return View(vm);
         }
 
         public IActionResult Error()
