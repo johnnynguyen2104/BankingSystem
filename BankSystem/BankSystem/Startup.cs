@@ -50,7 +50,7 @@ namespace BankSystem
             InitializeIoC.Init(services);
 
             //Register Mapper
-            var config = new AutoMapper.MapperConfiguration(cfg =>
+            var config = new MapperConfiguration(cfg =>
             {
                 cfg.AddProfile(new ServiceMapper());
                 cfg.AddProfile(new SecurityMapper());
@@ -58,7 +58,7 @@ namespace BankSystem
             });
 
             var mapper = config.CreateMapper();
-            services.AddSingleton<IMapper>(mapper);
+            services.AddSingleton(mapper);
             //
             services.AddSession();
             services.AddMvc();

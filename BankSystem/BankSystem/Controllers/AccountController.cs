@@ -22,7 +22,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BankSystem.Controllers
 {
     [Authorize]
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         private readonly IAccountService _accountService;
         private readonly IMapper _mapper;
@@ -60,6 +60,7 @@ namespace BankSystem.Controllers
         public IActionResult Index(IList<string> errors = null, bool? transactionCompleted = null)
         {
             AddErrors(errors);
+            EndAllTransaction();
             var vm = new IndexAccountVM() { Accounts = _accountService.ReadAccount(UserId), TransactionCompleted = transactionCompleted };
             return View(vm);
         }
@@ -226,6 +227,14 @@ namespace BankSystem.Controllers
         {
             try
             {
+                //for security, in case hacker change Destination accountId.
+                if (!TempData.ContainsKey("ValidateAccountDesId") 
+                    || (int)TempData["ValidateAccountDesId"] != vm.AccountDestinationId)
+                {
+                    EndTransaction(vm.AccountId);
+                    return RedirectToAction("Index", new { errors = new List<string>() { "Somthing went wrong. Please try again." } });
+                }
+
                 if (_accountService.TransferMoney(vm.AccountId, vm.Value, vm.AccountDestinationId))
                 {
                     //end transaction
@@ -267,11 +276,6 @@ namespace BankSystem.Controllers
             {
                 ModelState.AddModelError(string.Empty, item);
             }
-        }
-
-        private void EndTransaction(int accountId)
-        {
-            TempData.Remove($"account_{accountId}");
         }
     }
 }

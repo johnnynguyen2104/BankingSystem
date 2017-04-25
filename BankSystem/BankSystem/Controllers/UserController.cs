@@ -20,7 +20,7 @@ using AutoMapper;
 namespace BankSystem.Controllers
 {
     [Authorize]
-    public class UserController : Controller
+    public class UserController : BaseController
     {
         private readonly IUserAuthBusiness _userAuthBusiness;
         private readonly IEmailSender _emailSender;
@@ -131,6 +131,7 @@ namespace BankSystem.Controllers
         public async Task<IActionResult> Logout()
         {
             await _userAuthBusiness.SignOutAsync();
+            EndAllTransaction();
             _logger.LogInformation(4, "User logged out.");
             return RedirectToAction(nameof(AccountController.Index), "Account");
         }
