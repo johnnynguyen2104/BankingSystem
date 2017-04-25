@@ -28,16 +28,19 @@ namespace BankSystem.Service.Implementations
 
         public AccountDto Create(AccountDto entity)
         {
-            if (entity == null)
+            if (entity == null 
+                || string.IsNullOrEmpty(entity.Password) 
+                || string.IsNullOrEmpty(entity.AccountName)
+                || string.IsNullOrEmpty(entity.AccountNumber))
             {
                 return null;
             }
 
             entity.Password = PasswordHelper.HashPassword(entity.Password);
             var result = _accountRepo.Create(_mapper.Map<Account>(entity));
-            _accountRepo.CommitChanges();
+            
 
-            return _mapper.Map<AccountDto>(result);
+            return _accountRepo.CommitChanges() > 0 ? _mapper.Map<AccountDto>(result) : null;
         }
 
         public int Delete(IList<int> ids)
@@ -55,10 +58,10 @@ namespace BankSystem.Service.Implementations
             if (!string.IsNullOrEmpty(password))
             {
                 var passHash = PasswordHelper.HashPassword(password);
-                return (_accountRepo.ReadOne(a => a.Id == accountId.Value && a.UserId == userId && a.Password == passHash) != null);
+                return (_accountRepo.Read(a => a.Id == accountId.Value && a.UserId == userId && a.Password == passHash).FirstOrDefault() != null);
             }
 
-            var result = _accountRepo.ReadOne(a => a.Id == accountId.Value && a.UserId == userId);
+            var result = _accountRepo.Read(a => a.Id == accountId.Value && a.UserId == userId).FirstOrDefault();
 
             return (result != null);
 
@@ -110,21 +113,21 @@ namespace BankSystem.Service.Implementations
             {
                 return null;
             }
-            var result = _accountRepo.ReadOne(a => a.AccountNumber == numberAccount);
+            var result = _accountRepo.Read(a => a.AccountNumber == numberAccount).FirstOrDefault();
 
             return result != null ? _mapper.Map<AccountDto>(result) : null;
         }
 
         public AccountDto ReadOneById(int id)
         {
-            var result = _accountRepo.ReadOne(a => a.Id == id);
+            var result = _accountRepo.Read(a => a.Id == id).FirstOrDefault();
             return result == null ? null : _mapper.Map<AccountDto>(result);
         }
 
         public bool TransferMoney(int accountId, double value, int desAccountId)
         {
-            var account = _accountRepo.ReadOne(a => a.Id == accountId);
-            var desAccount = _accountRepo.ReadOne(a => a.Id == desAccountId);
+            var account = _accountRepo.Read(a => a.Id == accountId).FirstOrDefault();
+            var desAccount = _accountRepo.Read(a => a.Id == desAccountId).FirstOrDefault();
 
             if (account != null && desAccount != null)
             {
@@ -190,33 +193,44 @@ namespace BankSystem.Service.Implementations
             throw new NotImplementedException();
         }
 
-        public bool UpdateBalance(double value, int accountId)
+        public bool UpdateBalance(double value, int accountId, string userId)
         {
-            var entity = _accountRepo.ReadOne(a => a.Id == accountId);
-            entity.Balance += value;
-
-            if (entity.Balance < 0)
+            if (value == 0 || accountId <= 0)
             {
-                throw new Exception("Account dont have enough money. Please try again.");
+                return false;
             }
-            _accountRepo.Update(entity);
 
-            var completed = (_accountRepo.CommitChanges() > 0);
-
-            if (completed)
+            var entity = _accountRepo.Read(a => a.Id == accountId && a.UserId == userId).FirstOrDefault();
+            if (entity != null)
             {
-                _transactionRepo.Create(new TransactionHistory()
+                entity.Balance += value;
+
+                if (entity.Balance < 0)
                 {
-                    AccountId = accountId,
-                    Type = (value < 0) ? TransactionType.Withdraw : TransactionType.Deposit,
-                    Value = value,
-                    BalanceAtTime = entity.Balance
-                });
+                    throw new Exception("Account dont have enough money. Please try again.");
+                }
 
-                _transactionRepo.CommitChanges();
+                _accountRepo.Update(entity);
+
+                var completed = (_accountRepo.CommitChanges() > 0);
+
+                if (completed)
+                {
+                    _transactionRepo.Create(new TransactionHistory()
+                    {
+                        AccountId = accountId,
+                        Type = (value < 0) ? TransactionType.Withdraw : TransactionType.Deposit,
+                        Value = value,
+                        BalanceAtTime = entity.Balance
+                    });
+
+                    _transactionRepo.CommitChanges();
+                }
+
+                return completed;
             }
 
-            return completed;
+            return false;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace BankSystem.Service.Interfaces
 
         AccountDto ReadOneAccountByNumber(string numberAccount);
 
-        bool UpdateBalance(double value, int accountId);
+        bool UpdateBalance(double value, int accountId, string userId);
 
         bool IsAccountExisted(int? accountId, string userId, string password = "");
 

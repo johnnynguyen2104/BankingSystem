@@ -130,7 +130,7 @@ namespace BankSystem.Controllers
         {
             try
             {
-                if (_accountService.UpdateBalance(vm.Money * -1, vm.AccountId))
+                if (_accountService.UpdateBalance(vm.Money * -1, vm.AccountId, UserId))
                 {
                     //end transaction
                     EndTransaction(vm.AccountId);
@@ -167,7 +167,7 @@ namespace BankSystem.Controllers
         {
             try
             {
-                if (_accountService.UpdateBalance(vm.Money, vm.AccountId))
+                if (_accountService.UpdateBalance(vm.Money, vm.AccountId, UserId))
                 {
                     //end transaction
                     EndTransaction(vm.AccountId);
