@@ -21,6 +21,13 @@ namespace BankSystem.DAL.Interfaces
         IQueryable<TEntity> Read(Expression<Func<TEntity, bool>> expression);
 
         /// <summary>
+        /// Returning an entity base on expression
+        /// </summary>
+        /// <param name="expression">Condition for returning an entity</param>
+        /// <returns>Returning an entity</returns>
+        TEntity ReadOne(Expression<Func<TEntity, bool>> expression);
+
+        /// <summary>
         /// Creating an entity.
         /// </summary>
         /// <param name="entity">Entity need to create</param>
