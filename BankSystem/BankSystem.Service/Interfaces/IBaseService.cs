@@ -5,6 +5,11 @@ using System.Text;
 
 namespace BankSystem.Service.Interfaces
 {
+    /// <summary>
+    /// Base service contains common function that most of service have it.
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TEntity"></typeparam>
     public interface IBaseService<TKey, TEntity> 
         where TEntity : BaseDto<TKey> where TKey : struct
     {

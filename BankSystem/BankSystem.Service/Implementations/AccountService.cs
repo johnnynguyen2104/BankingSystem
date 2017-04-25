@@ -60,7 +60,9 @@ namespace BankSystem.Service.Implementations
 
         public bool IsAccountExisted(int? accountId, string userId, string password = "")
         {
-            if (accountId == null || accountId <= 0 || (string.IsNullOrEmpty(userId) || userId.Trim().Length == 0))
+            if (accountId == null 
+                || accountId <= 0 
+                || (string.IsNullOrEmpty(userId) || userId.Trim().Length == 0))
             {
                 return false;
             }
@@ -90,7 +92,9 @@ namespace BankSystem.Service.Implementations
 
         public IList<TransactionHistoryDto> ReadHistory(string userId, int accountId, int index, int itemPerPage, out int totalItem)
         {
-            if ((string.IsNullOrEmpty(userId) || userId.Trim().Length == 0) || accountId < 0)
+            if ((string.IsNullOrEmpty(userId) || userId.Trim().Length == 0) 
+                || accountId <= 0
+                || itemPerPage <= 0)
             {
                 totalItem = 0;
                 return new List<TransactionHistoryDto>();
