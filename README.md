@@ -35,6 +35,14 @@ After you finish the Build step above, you should access to the url: youdomain.c
 
 For more information, please access the AccountService.cs (Service Layer), find function ConcurrencyTest and the you will see another comment for the details.
 
+## Improvement
+There are many improvement for this project following below:
+
++ Create more unit test for this project such as Presentation Layer, DAL, Service Layer. For this project, I just implemented unit test for some main fucntions in the Service Layer.
+
++ Improving security and UI for user.
+
++ Giving comment on every function in the project to make sure other developer in team or future team-mate can understand it.
 
 Thanks for reading this.;)
 
