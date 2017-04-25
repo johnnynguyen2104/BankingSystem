@@ -9,6 +9,10 @@ This is a simple Banking system, I just base on some main functionals such as Wi
 
 I designed the architecture for this project base on 3 Layers pattern, Repository. Moreover, I splitted the Identity from Presentation Layer into another layer called Security to follow DI principle and  easier to make relationships between others entity model, etc... Beside, this project represent for solving the concurrency problem.
 
+## Technologies
+
+Asp.Net Core, EF7, AutoMapper, Jquery, Html, Css, XUnit. 
+
 ## How to build code
 
 1. Open project with Visual Studio 2015(install .NET Core) or 2017.
