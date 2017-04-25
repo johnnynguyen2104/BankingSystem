@@ -7,3 +7,5 @@
 /BankSystem/BankSystem.Service/bin
 /BankSystem/.vs
 /.vs
+/BankSystem/BankSystem.UnitTest/obj
+/BankSystem/BankSystem.UnitTest/bin/Debug/netcoreapp1.1
