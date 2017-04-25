@@ -126,35 +126,63 @@ namespace BankSystem.Service.Implementations
             var account = _accountRepo.ReadOne(a => a.Id == accountId);
             var desAccount = _accountRepo.ReadOne(a => a.Id == desAccountId);
 
-            account.Balance -= value;
-            desAccount.Balance += value;
-
-            if (account.Balance < 0)
+            if (account != null && desAccount != null)
             {
-                throw new Exception("Account dont have enough money. Please try again.");
+                account.Balance -= value;
+                desAccount.Balance += value;
+
+                if (account.Balance < 0)
+                {
+                    throw new Exception("Account dont have enough money. Please try again.");
+                }
+
+                _accountRepo.Update(account);
+                _accountRepo.Update(desAccount);
+
+                var completed = (_accountRepo.CommitChanges() > 0);
+
+                if (completed)
+                {
+                    var isSuccess = CreateTransactionHistoryFundTransfer(value, account, desAccount);
+                    if (isSuccess <= 0)
+                    {
+                        throw new Exception("Something went wrong. Please try again.");
+                    }
+                }
+
+                return completed;
             }
 
-            _accountRepo.Update(account);
-            _accountRepo.Update(desAccount);
+            throw new Exception("Something went wrong. Please try again.");
+        }
 
-            var completed = (_accountRepo.CommitChanges() > 0);
-
-            if (completed)
+        private int CreateTransactionHistoryFundTransfer(double value, Account account, Account desAccount)
+        {
+            if (account != null && desAccount != null)
             {
+                //transfer
                 _transactionRepo.Create(new TransactionHistory()
                 {
-                    AccountId = accountId,
-                    InteractionAccountId = desAccountId,
+                    AccountId = account.Id,
+                    InteractionAccountId = desAccount.Id,
                     Type = TransactionType.FundTransfer,
                     Value = value,
                     BalanceAtTime = account.Balance
                 });
 
-                _transactionRepo.CommitChanges();
+                //received
+                _transactionRepo.Create(new TransactionHistory()
+                {
+                    AccountId = desAccount.Id,
+                    InteractionAccountId = account.Id,
+                    Type = TransactionType.Received,
+                    Value = value,
+                    BalanceAtTime = desAccount.Balance
+                });
+
+                return _transactionRepo.CommitChanges();
             }
-
-            return completed;
-
+            throw new Exception("Something went wrong. Please try again.");
         }
 
         public void Update(AccountDto entity)
