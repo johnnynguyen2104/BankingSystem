@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace BankSystem.DAL.Migrations
 {
-    public partial class init : Migration
+    public partial class InitializeDatabase : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -181,12 +181,14 @@ namespace BankSystem.DAL.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     AccountId = table.Column<int>(nullable: false),
-                    CreatedDate = table.Column<DateTime>(nullable: true),
-                    DestinationAccountId = table.Column<int>(nullable: false),
-                    Money = table.Column<double>(nullable: false),
+                    BalanceAtTime = table.Column<double>(nullable: false),
+                    CreatedDate = table.Column<DateTime>(nullable: true, defaultValueSql: "getutcdate()"),
+                    InteractionAccountId = table.Column<int>(nullable: true),
+                    Note = table.Column<string>(nullable: true),
                     RowVersion = table.Column<byte[]>(rowVersion: true, nullable: true),
                     Type = table.Column<int>(nullable: false),
-                    UpdatedDate = table.Column<DateTime>(nullable: true)
+                    UpdatedDate = table.Column<DateTime>(nullable: true),
+                    Value = table.Column<double>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -198,8 +200,8 @@ namespace BankSystem.DAL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_TransactionHistory_Account_DestinationAccountId",
-                        column: x => x.DestinationAccountId,
+                        name: "FK_TransactionHistory_Account_InteractionAccountId",
+                        column: x => x.InteractionAccountId,
                         principalTable: "Account",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -222,9 +224,9 @@ namespace BankSystem.DAL.Migrations
                 column: "AccountId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TransactionHistory_DestinationAccountId",
+                name: "IX_TransactionHistory_InteractionAccountId",
                 table: "TransactionHistory",
-                column: "DestinationAccountId");
+                column: "InteractionAccountId");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
