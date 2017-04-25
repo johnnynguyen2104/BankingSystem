@@ -112,5 +112,52 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
                         new object[] { "   " },
                         new object[] { null }
         };
+
+        public static object[] CheckAccountExisted_Existed = new object[]
+        {
+             new object[] { 1, 2 },
+                        new object[] { 2, 3, "asda" },
+                        new object[] { 3, 4, "" },
+                        new object[] { 1, 3, null }
+        };
+
+        public static object[] CheckAccountExisted_Unexisted = new object[]
+          {
+                 new object[] { 1, null },
+                            new object[] { 2, null, "" },
+                            new object[] { -1, "" },
+                            new object[] { -1, null, null }
+          };
+
+        public static object[] ReadAccount_Valid = new object[]
+       {
+                 new object[] { "1" },
+                            new object[] { "2" },
+                            new object[] { "-1" },
+                            new object[] { "1231231" }
+       };
+
+        public static object[] ReadAccount_Invalid = new object[]
+       {
+                 new object[] { "" },
+                            new object[] { "    " },
+                            new object[] { null }
+       };
+
+        public static object[] ReadTransactions_Invalid = new object[]
+          {
+                            new object[] { "", 1, 1, -1 },
+                            new object[] { "   ", -2, -1, -4 },
+                            new object[] { null, 1, 1, 1 },
+                             new object[] { "2", 1, 1, -10 },
+                             new object[] { "2", 1, 1, 0 }
+          };
+
+        public static object[] ReadTransactions_Valid = new object[]
+          {
+                            new object[] { "1", 1, 1, 1 },
+                            new object[] { "3", 2, -4, 10 },
+                            new object[] { "4", 3, -3, 4 }
+          };
     }
 }

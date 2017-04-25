@@ -135,5 +135,74 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             //assert
             Assert.Null(result);
         }
+
+        [Theory]
+        [MemberData(nameof(CheckAccountExisted_Existed))]
+        public void GivenExistedAccount_WhenCheckExistedAccount_True(int? accountId, string userId, string password = "")
+        {
+            //arrange & Action
+            var result = _accountService.IsAccountExisted(accountId, userId, password);
+
+            //assert
+            Assert.Equal(true, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(CheckAccountExisted_Unexisted))]
+        public void GivenUnexistedAccount_WhenCheckExistedAccount_False(int? accountId, string userId, string password = "")
+        {
+            //arrange & Action
+            _accountRepoMock.Setup(a => a.Read(It.IsAny<Expression<Func<Account, bool>>>()));
+            var result = _accountService.IsAccountExisted(accountId, userId, password);
+
+            //assert
+            Assert.Equal(false, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(ReadAccount_Valid))]
+        public void GivenValidData_WhenReadAccounts_Accounts(string userId)
+        {
+            //arrange & Action
+            var result = _accountService.ReadAccount(userId);
+
+            //assert
+            Assert.True(result.Count > 0);
+        }
+
+        [Theory]
+        [MemberData(nameof(ReadAccount_Invalid))]
+        public void GivenValidData_WhenReadAccounts_NoAccounts(string userId)
+        {
+            //arrange & Action
+            var result = _accountService.ReadAccount(userId);
+
+            //assert
+            Assert.True(result.Count == 0);
+        }
+
+        [Theory]
+        [MemberData(nameof(ReadTransactions_Invalid))]
+        public void GivenValidData_WhenReadTransaction_Transactions(string userId, int accountId, int index, int itemPerPage)
+        {
+            //arrange & Action
+            int total = 0;
+            var result = _accountService.ReadHistory(userId, accountId, index, itemPerPage, out total);
+
+            //assert
+            Assert.True(result.Count == 0);
+        }
+
+        [Theory]
+        [MemberData(nameof(ReadTransactions_Invalid))]
+        public void GivenInvalidData_WhenReadTransactions_NoTransactions(string userId, int accountId, int index, int itemPerPage)
+        {
+            //arrange & Action
+            int total = 0;
+            var result = _accountService.ReadHistory(userId, accountId, index, itemPerPage, out total);
+
+            //assert
+            Assert.True(result.Count == 0);
+        }
     }
 }
