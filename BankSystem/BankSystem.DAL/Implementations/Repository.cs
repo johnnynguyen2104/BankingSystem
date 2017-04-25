@@ -18,11 +18,6 @@ namespace BankSystem.DAL.Implementations
             DbContext = dbContext;
         }
 
-        public Repository()
-        {
-            DbContext = new BankSystemDbContext();
-        }
-
         public IQueryable<TEntity> Read(Expression<Func<TEntity, bool>> expression)
         {
             var result = DbContext.Set<TKey, TEntity>().Where(expression);

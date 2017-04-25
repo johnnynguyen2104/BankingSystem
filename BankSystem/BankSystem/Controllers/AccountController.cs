@@ -48,6 +48,29 @@ namespace BankSystem.Controllers
             return View(login);
         }
 
+        [AllowAnonymous]
+        public IActionResult TestConcurrency(IList<string> errors)
+        {
+            AddErrors(errors);
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult Concurrency()
+        {
+            try
+            {
+                _accountService.ConcurrencyTest();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                return RedirectToAction("TestConcurrency", new { errors = new List<string>() { "Concurrency Problem !" } });
+            }
+            
+            return RedirectToAction("TestConcurrency");
+        }
+
         [ServiceFilter(typeof(AccountFilter))]
         public IActionResult Login(AccountLoginVM login)
         {

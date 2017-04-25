@@ -18,7 +18,7 @@ namespace BankSystem.DAL.DomainModels
 
         public BankSystemDbContext() : base()
         {
-
+       
         }
 
         public static BankSystemDbContext Create()
