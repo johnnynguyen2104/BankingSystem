@@ -29,9 +29,9 @@ namespace BankSystem.Service.Implementations
         public AccountDto Create(AccountDto entity)
         {
             if (entity == null 
-                || string.IsNullOrEmpty(entity.Password) 
-                || string.IsNullOrEmpty(entity.AccountName)
-                || string.IsNullOrEmpty(entity.AccountNumber))
+                || (string.IsNullOrEmpty(entity.Password) || entity.Password.Trim().Length == 0)
+                || (string.IsNullOrEmpty(entity.AccountName) || entity.AccountName.Trim().Length == 0)
+                || (string.IsNullOrEmpty(entity.AccountNumber) || entity.AccountNumber.Trim().Length == 0))
             {
                 return null;
             }
@@ -50,7 +50,7 @@ namespace BankSystem.Service.Implementations
 
         public bool IsAccountExisted(int? accountId, string userId, string password = "")
         {
-            if (accountId == null || accountId <= 0 || string.IsNullOrEmpty(userId))
+            if (accountId == null || accountId <= 0 || (string.IsNullOrEmpty(userId) || userId.Trim().Length == 0))
             {
                 return false;
             }
@@ -58,18 +58,18 @@ namespace BankSystem.Service.Implementations
             if (!string.IsNullOrEmpty(password))
             {
                 var passHash = PasswordHelper.HashPassword(password);
-                return (_accountRepo.Read(a => a.Id == accountId.Value && a.UserId == userId && a.Password == passHash).FirstOrDefault() != null);
+                return (_accountRepo.Read(a => a.Id == accountId.Value && a.UserId == userId && a.Password == passHash).Count() > 0);
             }
 
-            var result = _accountRepo.Read(a => a.Id == accountId.Value && a.UserId == userId).FirstOrDefault();
+            var result = _accountRepo.Read(a => a.Id == accountId.Value && a.UserId == userId).Count();
 
-            return (result != null);
+            return (result > 0);
 
         }
 
         public IList<AccountDto> ReadAccount(string userId)
         {
-            if (string.IsNullOrEmpty(userId))
+            if (string.IsNullOrEmpty(userId) || userId.Trim().Length == 0)
             {
                 return new List<AccountDto>();
             }
@@ -80,7 +80,7 @@ namespace BankSystem.Service.Implementations
 
         public IList<TransactionHistoryDto> ReadHistory(string userId, int accountId, int index, int itemPerPage, out int totalItem)
         {
-            if (string.IsNullOrEmpty(userId) || accountId < 0)
+            if ((string.IsNullOrEmpty(userId) || userId.Trim().Length == 0) || accountId < 0)
             {
                 totalItem = 0;
                 return new List<TransactionHistoryDto>();
@@ -109,35 +109,43 @@ namespace BankSystem.Service.Implementations
         public AccountDto ReadOneAccountByNumber(string numberAccount)
         {
 
-            if (string.IsNullOrEmpty(numberAccount))
+            if (string.IsNullOrEmpty(numberAccount) || numberAccount.Trim().Length == 0)
             {
                 return null;
             }
-            var result = _accountRepo.Read(a => a.AccountNumber == numberAccount).FirstOrDefault();
+            var result = _accountRepo.ReadOne(a => a.AccountNumber == numberAccount);
 
             return result != null ? _mapper.Map<AccountDto>(result) : null;
         }
 
         public AccountDto ReadOneById(int id)
         {
-            var result = _accountRepo.Read(a => a.Id == id).FirstOrDefault();
+            if (id <= 0)
+            {
+                return null;
+            }
+            var result = _accountRepo.ReadOne(a => a.Id == id);
             return result == null ? null : _mapper.Map<AccountDto>(result);
         }
 
         public bool TransferMoney(int accountId, double value, int desAccountId)
         {
-            var account = _accountRepo.Read(a => a.Id == accountId).FirstOrDefault();
-            var desAccount = _accountRepo.Read(a => a.Id == desAccountId).FirstOrDefault();
+            if (value <= 0)
+            {
+                return false;
+            }
+            var account = _accountRepo.ReadOne(a => a.Id == accountId);
+            var desAccount = _accountRepo.ReadOne(a => a.Id == desAccountId);
 
             if (account != null && desAccount != null)
             {
-                account.Balance -= value;
-                desAccount.Balance += value;
-
-                if (account.Balance < 0)
+                if (account.Balance < value)
                 {
                     throw new Exception("Account dont have enough money. Please try again.");
                 }
+
+                account.Balance -= value;
+                desAccount.Balance += value;               
 
                 _accountRepo.Update(account);
                 _accountRepo.Update(desAccount);
@@ -200,7 +208,7 @@ namespace BankSystem.Service.Implementations
                 return false;
             }
 
-            var entity = _accountRepo.Read(a => a.Id == accountId && a.UserId == userId).FirstOrDefault();
+            var entity = _accountRepo.ReadOne(a => a.Id == accountId && a.UserId == userId);
             if (entity != null)
             {
                 entity.Balance += value;
@@ -230,7 +238,7 @@ namespace BankSystem.Service.Implementations
                 return completed;
             }
 
-            return false;
+            throw new Exception("Invalid account."); ;
         }
     }
 }
