@@ -44,7 +44,7 @@ For more information, please access the AccountService.cs (Service Layer), find 
 ## Improvement
 There are many improvement for this project following below:
 
-+ Create more unit test for this project such as Presentation Layer, DAL, Service Layer. For this project, I just implemented unit test for some main fucntions in the Service Layer.
++ Create more unit test for this project such as Presentation Layer, DAL, Service Layer.
 
 + Improving security and UI for user.
 
