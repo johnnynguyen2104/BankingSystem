@@ -15,7 +15,7 @@ I designed the architecture for this project base on 3 Layers pattern, Repositor
 
 2. After the project are openned, you will see the project details on the Solution Explorer, then right-click on the solution the choose Build to build and restore necessary package.
 
-3. If the solution build success, the project now ready to run but before running project you should check you connectionString on the appsetting.json file on the BankSystem project is correct or not, if not, change it then open Package Manager Console and type 'Update-Database' command to create database.
+3. If the solution build success, the project now ready to run but before running project you should check you connectionString on the appsetting.json file on the BankSystem project is correct or not, if not, change it then open Package Manager Console, choose Default project to "BankSystem.DAL" and type 'Update-Database' command to create database.
 
 4. Open the seed data sql file in the attachment and run it (the seed data for concurrency case, you have to run after database was created).
 
