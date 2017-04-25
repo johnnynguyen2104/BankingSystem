@@ -30,13 +30,6 @@ namespace BankSystem.DAL.Implementations
             return result;
         }
 
-        public TEntity ReadOne(Expression<Func<TEntity, bool>> expression)
-        {
-            var entity = DbContext.Set<TKey, TEntity>().FirstOrDefault(expression);
-
-            return entity;
-        }
-
         public TEntity Create(TEntity entity)
         {
             DbContext.Entry<TKey, TEntity>(entity).State = Microsoft.EntityFrameworkCore.EntityState.Added;
@@ -45,7 +38,7 @@ namespace BankSystem.DAL.Implementations
 
         public void Update(TEntity entity)
         {
-            var updateEntity = ReadOne(a => a.Id.Equals(entity.Id));
+            var updateEntity = Read(a => a.Id.Equals(entity.Id)).FirstOrDefault();
             DbContext.Entry<TKey, TEntity>(updateEntity).CurrentValues.SetValues(entity);
         }
 
