@@ -10,13 +10,14 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
  
     public partial class AccountServiceTest
     {
+        #region Creation of Account
         [Theory]
         [MemberData(nameof(CreationAccount_Success))]
         public void GivenValidAccountInfo_WhenCreate_Success(AccountDto entity)
         {
             //arrange & Action
             var result = _accountService.Create(entity);
-            
+
             Assert.NotNull(result);
         }
 
@@ -30,7 +31,9 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             //assert
             Assert.Null(result);
         }
+        #endregion
 
+        #region Withdraw and Deposit 
         [Theory]
         [MemberData(nameof(UpdateBalance_Success))]
         public void GivenValidData_WhenUpdateBalance_Success(int accountId, double value, string userId)
@@ -65,7 +68,9 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             Assert.NotNull(ex);
             Assert.NotEmpty(ex.Message);
         }
+        #endregion
 
+        #region Transfer
         [Theory]
         [MemberData(nameof(Transfer_Throw))]
         public void GivenInvalidAccount_WhenTransfer_ThrowException(int accountId, double value, int desAccountId)
@@ -113,7 +118,9 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             //assert
             Assert.Equal(true, result);
         }
+        #endregion
 
+        #region Read accounts by number
         [Theory]
         [MemberData(nameof(ReadAccountByNumber_Valid))]
         public void GivenValidData_WhenReadAccountByNumber_Account(string accountNumber)
@@ -135,7 +142,9 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             //assert
             Assert.Null(result);
         }
+        #endregion
 
+        #region Check Existed Account
         [Theory]
         [MemberData(nameof(CheckAccountExisted_Existed))]
         public void GivenExistedAccount_WhenCheckExistedAccount_True(int? accountId, string userId, string password = "")
@@ -158,7 +167,9 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             //assert
             Assert.Equal(false, result);
         }
+        #endregion
 
+        #region read accounts by userId
         [Theory]
         [MemberData(nameof(ReadAccount_Valid))]
         public void GivenValidData_WhenReadAccounts_Accounts(string userId)
@@ -180,7 +191,9 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             //assert
             Assert.True(result.Count == 0);
         }
+        #endregion
 
+        #region Read transactions
         [Theory]
         [MemberData(nameof(ReadTransactions_Invalid))]
         public void GivenValidData_WhenReadTransaction_Transactions(string userId, int accountId, int index, int itemPerPage)
@@ -204,5 +217,6 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             //assert
             Assert.True(result.Count == 0);
         }
+        #endregion
     }
 }
