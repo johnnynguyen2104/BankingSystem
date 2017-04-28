@@ -15,7 +15,6 @@ namespace BankSystem.Service.Implementations
     public class AccountService : IAccountService
     {
         private readonly IBaseRepository<int, Account> _accountRepo;
-        private readonly IBaseRepository<int, Account> _accountRepo2;
         private readonly IBaseRepository<int, TransactionHistory> _transactionRepo;
         private readonly IMapper _mapper;
 
@@ -28,10 +27,9 @@ namespace BankSystem.Service.Implementations
         /// <param name="accountRepo2">This one is for concurrency test</param>
         public AccountService(IBaseRepository<int, Account> accountRepo, 
             IBaseRepository<int, TransactionHistory> transactionRepo, 
-            IMapper mapper, IBaseRepository<int, Account> accountRepo2 = null)
+            IMapper mapper)
         {
             _accountRepo = accountRepo;
-            _accountRepo2 = accountRepo2;
             _transactionRepo = transactionRepo;
             _mapper = mapper;
         }
@@ -253,34 +251,6 @@ namespace BankSystem.Service.Implementations
             }
 
             throw new Exception("Invalid account."); ;
-        }
-
-        public void ConcurrencyTest()
-        {
-            Account account1, account2;
-
-            //Get Account for account1
-            account1 = _accountRepo.ReadOne(a => a.Id == 1);
-            //Get Account for account2 also same as account1
-            account2 = _accountRepo2.ReadOne(a => a.Id == 1);
-
-            //Update balance account1
-            account1.Balance -= 3;
-            //Update balance account2
-            account2.Balance -= 1;
-
-            //change state to modified
-            _accountRepo.Update(account1);
-            //save changes first
-            _accountRepo.CommitChanges();
-
-            //change state to modified
-            _accountRepo2.Update(account2);
-
-            //User account2 saves changes after User account1. 
-            //User account2 will get concurrency exection 
-            //because rowVersion is different in the database 
-            _accountRepo2.CommitChanges();
         }
     }
 }

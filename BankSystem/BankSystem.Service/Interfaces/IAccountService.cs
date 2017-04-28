@@ -8,8 +8,6 @@ namespace BankSystem.Service.Interfaces
     public interface IAccountService : IBaseService<int, AccountDto>
     {
 
-        void ConcurrencyTest();
-
         bool TransferMoney(int accountId, double value, int desAccountId);
 
         AccountDto ReadOneAccountByNumber(string numberAccount);
