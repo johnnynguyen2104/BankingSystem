@@ -36,19 +36,39 @@ namespace BankSystem.Service.Implementations
 
         public AccountDto Create(AccountDto entity)
         {
-            if (entity == null 
-                || (string.IsNullOrEmpty(entity.Password) || entity.Password.Trim().Length == 0)
-                || (string.IsNullOrEmpty(entity.AccountName) || entity.AccountName.Trim().Length == 0)
-                || (string.IsNullOrEmpty(entity.AccountNumber) || entity.AccountNumber.Trim().Length == 0))
-            {
-                return null;
-            }
+            CreationAccountValidator(entity);
 
             entity.Password = PasswordHelper.HashPassword(entity.Password);
             var result = _accountRepo.Create(_mapper.Map<Account>(entity));
-            
+
 
             return _accountRepo.CommitChanges() > 0 ? _mapper.Map<AccountDto>(result) : null;
+        }
+
+        private void CreationAccountValidator(AccountDto entity)
+        {
+            if (entity == null)
+            {
+                throw new ArgumentNullException("entity", "Argument was null.");
+            }
+
+            if ((string.IsNullOrEmpty(entity.Password)
+                || entity.Password.Trim().Length == 0))
+            {
+                throw new ArgumentException("Argument password was null or empty.", "Password");
+            }
+
+            if ((string.IsNullOrEmpty(entity.AccountName)
+                || entity.AccountName.Trim().Length == 0))
+            {
+                throw new ArgumentException("Argument AccountName was null or empty.", "AccountName");
+            }
+
+            if ((string.IsNullOrEmpty(entity.AccountNumber)
+                || entity.AccountNumber.Trim().Length == 0))
+            {
+                throw new ArgumentException("Argument AccountNumber was null or empty.", "AccountNumber");
+            }
         }
 
         public int Delete(IList<int> ids)
@@ -215,9 +235,14 @@ namespace BankSystem.Service.Implementations
 
         public bool UpdateBalance(double value, int accountId, string userId)
         {
-            if (value == 0 || accountId <= 0)
+            if (value == 0)
             {
-                return false;
+                throw new ArgumentException("Value can't be lower than 1", "value");
+            }
+
+            if (accountId <= 0)
+            {
+                throw new ArgumentException("Invalid AccountId.", "AccountId");
             }
 
             var entity = _accountRepo.ReadOne(a => a.Id == accountId && a.UserId == userId);
@@ -250,7 +275,7 @@ namespace BankSystem.Service.Implementations
                 return completed;
             }
 
-            throw new Exception("Invalid account."); ;
+            throw new KeyNotFoundException("Account doesn't exist.");
         }
     }
 }
