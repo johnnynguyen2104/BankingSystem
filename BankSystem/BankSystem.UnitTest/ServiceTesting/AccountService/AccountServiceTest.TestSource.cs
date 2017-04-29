@@ -10,26 +10,34 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         public static object[] CreationAccount_Success = new object[]
         {
                     new object[] { new AccountDto() { AccountName= "ABC", UserId = "1", AccountNumber = "123-1", Balance = 0, Password = "123456" } },
-                    new object[] { new AccountDto() { AccountName = "ABC_2", UserId = "1", AccountNumber = "123-2", Balance = 1000, Password = "123456" } },
-                    new object[] { new AccountDto() { AccountName = "ABC_3", UserId = "2", AccountNumber = "123-3", Balance = 2000, Password = "123456" } },
-                    new object[] { new AccountDto() { AccountName = "ABC_4", UserId = "2", AccountNumber = "123-4", Balance = 10, Password = "123456" } },
-                    new object[] { new AccountDto() { AccountName = "ABC_5", UserId = "3", AccountNumber = "123-5", Balance = 200, Password = "123456" } },
-                    new object[] { new AccountDto() { AccountName = "ABC_6", UserId = "4", AccountNumber = "123-6", Balance = 3000, Password = "123456" } },
-                    new object[] { new AccountDto() { AccountName = "ABC_7", UserId = "5", AccountNumber = "123-7", Balance = 100, Password = "123456" } }
+                    new object[] { new AccountDto() { AccountName = "ABC_2", UserId = "1", AccountNumber = "123-2", Balance = 1000, Password = "!Iloveyou" } },
+                    new object[] { new AccountDto() { AccountName = "ABC_3", UserId = "2", AccountNumber = "123-3", Balance = 2000, Password = "ABc1234" } },
+                    new object[] { new AccountDto() { AccountName = "ABC_4", UserId = "2", AccountNumber = "123-4", Balance = 10, Password = "78027" } },
+                    new object[] { new AccountDto() { AccountName = "ABC_5", UserId = "3", AccountNumber = "123-5", Balance = 200, Password = "76543" } },
+                    new object[] { new AccountDto() { AccountName = "ABC_6", UserId = "4", AccountNumber = "123-6", Balance = 3000, Password = "Abc231" } },
+                    new object[] { new AccountDto() { AccountName = "ABC_7", UserId = "5", AccountNumber = "123-7", Balance = 100, Password = "!123456!" } }
         };
 
-        public static object[] CreationAccount_Null = new object[]
+        public static object[] CreationAccount_PasswordNullOrEmpty = new object[]
+          {
+                        new object[] { new AccountDto() { AccountName = "ABC_6", UserId = "4", AccountNumber = "123-6", Balance = 3000, Password = "" } },
+                        new object[] { new AccountDto() { AccountName = "ABC_7", UserId = "5", AccountNumber = "123-7", Balance = 100, Password = null } },
+                        new object[] { new AccountDto() { AccountName = "ABD", UserId = "5", AccountNumber = "EUR", Balance = 100, Password = "  " } }
+          };
+
+        public static object[] CreationAccount_AccountNameNullOrEmpty = new object[]
         {
-                    new object[] { null },
-                    new object[] { new AccountDto() { AccountName = "", UserId = "1", AccountNumber = "123-2", Balance = 1000, Password = "123456" } },
-                    new object[] { new AccountDto() { AccountName = null, UserId = "2", AccountNumber = "123-3", Balance = 2000, Password = "123456" } },
-                    new object[] { new AccountDto() { AccountName = "ABC_4", UserId = "2", AccountNumber = "", Balance = 10, Password = "123456" } },
-                    new object[] { new AccountDto() { AccountName = "ABC_5", UserId = "3", AccountNumber = null, Balance = 200, Password = "123456" } },
-                    new object[] { new AccountDto() { AccountName = "ABC_6", UserId = "4", AccountNumber = "123-6", Balance = 3000, Password = "" } },
-                    new object[] { new AccountDto() { AccountName = "ABC_7", UserId = "5", AccountNumber = "123-7", Balance = 100, Password = null } },
-                    new object[] { new AccountDto() { AccountName = null, UserId = "5", AccountNumber = null, Balance = 100, Password = null } },
-                    new object[] { new AccountDto() { AccountName = "", UserId = "5", AccountNumber = "", Balance = 100, Password = "" } }
+                    new object[] { new AccountDto() { AccountName = null, UserId = "5", AccountNumber = "aaaaa", Balance = 100, Password = "dadas" } },
+                    new object[] { new AccountDto() { AccountName = " ", UserId = "5", AccountNumber = "dasdasd", Balance = 100, Password = "fff" } },
+                    new object[] { new AccountDto() { AccountName = "", UserId = "5", AccountNumber = "dasdas", Balance = 100, Password = "aaaaaa" } }
         };
+
+        public static object[] CreationAccount_AccountNumberNullOrEmpty  = new object[]
+           {
+                        new object[] { new AccountDto() { AccountName = "ABC_4", UserId = "2", AccountNumber = "  ", Balance = 10, Password = "123456" } },
+                        new object[] { new AccountDto() { AccountName = "ABC_5", UserId = "3", AccountNumber = null, Balance = 200, Password = "123456" } },
+                        new object[] { new AccountDto() { AccountName = "ABC_6", UserId = "4", AccountNumber = "", Balance = 3000, Password = "dadasd" } },
+           };
 
         public static object[] UpdateBalance_Success = new object[]
         {

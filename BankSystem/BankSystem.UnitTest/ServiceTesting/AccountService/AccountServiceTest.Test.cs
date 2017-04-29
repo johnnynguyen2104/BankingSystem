@@ -13,23 +13,72 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         #region Creation of Account
         [Theory]
         [MemberData(nameof(CreationAccount_Success))]
-        public void GivenValidAccountInfo_WhenCreate_Success(AccountDto entity)
+        public void GivenValidAccountInfo_WhenCreate_AccountIdGreaterThanZeroAndHashedPassword(AccountDto entity)
         {
-            //arrange & Action
+            //arrange 
+            string originalPass = entity.Password;
+
+            _accountRepoMock.Setup(x => x.Create(It.IsAny<Account>()))
+                .Returns(delegate() 
+                {
+                    entity.Id = 1;
+                    return _mapper.Map<Account>(entity);
+                });
+            _accountRepoMock.Setup(x => x.CommitChanges())
+                .Returns(1);
+            //Action
             var result = _accountService.Create(entity);
 
-            Assert.NotNull(result);
+            //Assert
+            Assert.True(result.Id > 0);
+            Assert.True(result.Password != originalPass);
+        }
+
+        [Fact]
+        public void GivenNullArgument_WhenCreate_ReturnArgumentNullException()
+        {
+            //arrange 
+            ArgumentNullException result;
+            //Action
+            result = Assert.Throws<ArgumentNullException>(() => _accountService.Create(null));
+            //assert
+            Assert.True(result.ParamName == "entity");
         }
 
         [Theory]
-        [MemberData(nameof(CreationAccount_Null))]
-        public void GivenNullOrEmmty_Password_AccountName_AccountNumber_WhenCreate_ReturnNull(AccountDto entity)
+        [MemberData(nameof(CreationAccount_PasswordNullOrEmpty))]
+        public void GivenNullOrEmmty_Password_WhenCreate_ReturnArgumentException(AccountDto entity)
         {
-            //arrange & Action
-            var result = _accountService.Create(entity);
-
+            //arrange 
+            ArgumentException result;
+            //Action
+            result = Assert.Throws<ArgumentException>(() => _accountService.Create(entity));
             //assert
-            Assert.Null(result);
+            Assert.True(result.ParamName == "Password");
+        }
+
+        [Theory]
+        [MemberData(nameof(CreationAccount_AccountNameNullOrEmpty))]
+        public void GivenNullOrEmmty_AccountName_WhenCreate_ReturnArgumentException(AccountDto entity)
+        {
+            //arrange 
+            ArgumentException result;
+            //Action
+            result = Assert.Throws<ArgumentException>(() => _accountService.Create(entity));
+            //assert
+            Assert.True(result.ParamName == "AccountName");
+        }
+
+        [Theory]
+        [MemberData(nameof(CreationAccount_AccountNumberNullOrEmpty))]
+        public void GivenNullOrEmmty_AccountNumber_WhenCreate_ReturnArgumentException(AccountDto entity)
+        {
+            //arrange 
+            ArgumentException result;
+            //Action
+            result = Assert.Throws<ArgumentException>(() => _accountService.Create(entity));
+            //assert
+            Assert.True(result.ParamName == "AccountNumber");
         }
         #endregion
 
@@ -38,7 +87,8 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         [MemberData(nameof(UpdateBalance_Success))]
         public void GivenValidData_WhenUpdateBalance_Success(int accountId, double value, string userId)
         {
-            //arrange & Action
+            //arrange 
+            // Action
             var result = _accountService.UpdateBalance(value, accountId, userId);
 
             //assert

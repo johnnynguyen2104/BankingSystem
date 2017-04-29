@@ -16,6 +16,7 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
     {
         private Mock<IBaseRepository<int, Account>> _accountRepoMock;
         private Mock<IBaseRepository<int, TransactionHistory>> _transactionRepoMock;
+        private IMapper _mapper;
 
         private IAccountService _accountService;
 
@@ -23,7 +24,7 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         {
             _accountRepoMock = new Mock<IBaseRepository<int, Account>>();
             _transactionRepoMock = new Mock<IBaseRepository<int, TransactionHistory>>();
-
+            _mapper = IntiMapper();
             SetUp();
         }
 
@@ -50,7 +51,7 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             _transactionRepoMock.Setup(x => x.Read(It.IsAny<Expression<Func<TransactionHistory, bool>>>())).Returns(TransactionFakeDb);
             _transactionRepoMock.Setup(x => x.CommitChanges()).Returns(1);
            //inject fake Repository to service
-           _accountService = new Service.Implementations.AccountService(_accountRepoMock.Object, _transactionRepoMock.Object, IntiMapper()); 
+           _accountService = new Service.Implementations.AccountService(_accountRepoMock.Object, _transactionRepoMock.Object, _mapper); 
         }
 
         private static IQueryable<Account> AccountFakeDb()
