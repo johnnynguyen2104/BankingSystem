@@ -79,10 +79,14 @@ namespace BankSystem.Service.Implementations
         public bool IsAccountExisted(int? accountId, string userId, string password = "")
         {
             if (accountId == null 
-                || accountId <= 0 
-                || (string.IsNullOrEmpty(userId) || userId.Trim().Length == 0))
+                || accountId <= 0)
             {
-                return false;
+                throw new ArgumentException("Invalid accountId.", "accountId");
+            }
+            if ((string.IsNullOrEmpty(userId) 
+                || userId.Trim().Length == 0))
+            {
+                throw new ArgumentException("Invalid userId.", "userId");
             }
 
             if (!string.IsNullOrEmpty(password))
@@ -110,13 +114,8 @@ namespace BankSystem.Service.Implementations
 
         public IList<TransactionHistoryDto> ReadHistory(string userId, int accountId, int index, int itemPerPage, out int totalItem)
         {
-            if ((string.IsNullOrEmpty(userId) || userId.Trim().Length == 0) 
-                || accountId <= 0
-                || itemPerPage <= 0)
-            {
-                totalItem = 0;
-                return new List<TransactionHistoryDto>();
-            }
+            ReadHistoryValidator(userId, accountId, index, itemPerPage);
+
             index = index <= 0 ? 1 : index;
             var result = _transactionRepo.Read(a => a.AccountId == accountId && a.Account.UserId == userId)
                                         .OrderByDescending(a => a.CreatedDate)
@@ -127,7 +126,7 @@ namespace BankSystem.Service.Implementations
                                             AccountId = a.AccountId,
                                             BalanceAtTime = a.BalanceAtTime,
                                             CreatedDate = a.CreatedDate,
-                                            InteractionAccountNumber = a.InteractionAccount.AccountNumber,
+                                            InteractionAccountNumber = a.InteractionAccount != null ? a.InteractionAccount.AccountNumber : "",
                                             Type = (TransactionTypeDto)a.Type,
                                             Value = a.Value,
                                             Note = a.Note
@@ -138,16 +137,47 @@ namespace BankSystem.Service.Implementations
             return result;
         }
 
+        private static void ReadHistoryValidator(string userId, int accountId, int index, int itemPerPage)
+        {
+            if ((string.IsNullOrEmpty(userId) || userId.Trim().Length == 0))
+            {
+                throw new ArgumentException("Invalid UserId", "userId");
+            }
+
+            if (accountId <= 0)
+            {
+                throw new ArgumentException("Invalid AccountId", "accountId");
+            }
+
+            if (itemPerPage <= 0)
+            {
+                throw new ArgumentException("Invalid input item per page", "itemPerPage");
+            }
+
+            if (index <= 0)
+            {
+
+                throw new ArgumentException("Invalid input index.", "index");
+            }
+        }
+
         public AccountDto ReadOneAccountByNumber(string numberAccount)
         {
 
-            if (string.IsNullOrEmpty(numberAccount) || numberAccount.Trim().Length == 0)
+            if (string.IsNullOrEmpty(numberAccount) 
+                || numberAccount.Trim().Length == 0)
             {
-                return null;
+                throw new ArgumentNullException("numberAccount", "AccountNumber can't be null or empty.");
             }
+
             var result = _accountRepo.ReadOne(a => a.AccountNumber == numberAccount);
 
-            return result != null ? _mapper.Map<AccountDto>(result) : null;
+            if (result == null)
+            {
+                throw new KeyNotFoundException($"Account Nmber {numberAccount} can't be found.");
+            }
+
+            return _mapper.Map<AccountDto>(result);
         }
 
         public AccountDto ReadOneById(int id)
@@ -164,16 +194,34 @@ namespace BankSystem.Service.Implementations
         {
             if (value <= 0)
             {
-                return false;
+                throw new ArgumentException("Invalid value.", "value");
             }
-            var account = _accountRepo.ReadOne(a => a.Id == accountId);
-            var desAccount = _accountRepo.ReadOne(a => a.Id == desAccountId);
 
-            if (account != null && desAccount != null)
+            if (accountId <= 0 || desAccountId <= 0)
+            {
+                throw new ArgumentException("Invalid source or destination accountId", accountId <= 0 ? "accountId" : "desAccountId");
+            }
+
+            if (accountId == desAccountId)
+            {
+                throw new ArgumentException("Can't transfer to the same account.", "accountId");
+            }
+
+            var account = _accountRepo.ReadOne(a => a.Id == accountId);
+            
+
+            if (account != null)
             {
                 if (account.Balance < value)
                 {
                     throw new Exception("Account dont have enough money. Please try again.");
+                }
+
+                var desAccount = _accountRepo.ReadOne(a => a.Id == desAccountId);
+
+                if (desAccount == null)
+                {
+                    throw new KeyNotFoundException("Can't find destination Account");
                 }
 
                 account.Balance -= value;
@@ -196,7 +244,7 @@ namespace BankSystem.Service.Implementations
                 return completed;
             }
 
-            throw new Exception("Something went wrong. Please try again.");
+            throw new KeyNotFoundException("Can't find source Account");
         }
 
         private int CreateTransactionHistoryFundTransfer(double value, Account account, Account desAccount)
@@ -245,14 +293,20 @@ namespace BankSystem.Service.Implementations
                 throw new ArgumentException("Invalid AccountId.", "AccountId");
             }
 
-            var entity = _accountRepo.ReadOne(a => a.Id == accountId && a.UserId == userId);
+            if (string.IsNullOrEmpty(userId) || userId.Trim().Length == 0)
+            {
+                throw new ArgumentException("Invalid UserId.", "UserId");
+            }
+
+            var entity = _accountRepo
+                            .ReadOne(a => a.Id == accountId && a.UserId == userId);
             if (entity != null)
             {
                 entity.Balance += value;
 
                 if (entity.Balance < 0)
                 {
-                    throw new Exception("Account dont have enough money. Please try again.");
+                    throw new ArgumentException("Account dont have enough money. Please try again.", "Balance");
                 }
 
                 _accountRepo.Update(entity);

@@ -27,7 +27,7 @@ namespace BankSystem.DAL.Implementations
 
         public TEntity ReadOne(Expression<Func<TEntity, bool>> expression)
         {
-            var entity = DbContext.Set<TKey, TEntity>().FirstOrDefault(expression);
+            var entity = DbContext.Set<TKey, TEntity>().SingleOrDefault(expression);
 
             return entity;
         }
