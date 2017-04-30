@@ -89,17 +89,6 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
 
         #region Withdraw and Deposit 
 
-        [Fact]
-        public void Concurrency_UpdateBalance_ShouldFail()
-        {
-            //Arrange
-            var result = dbcontxet.Set<Account>().Single(a => a.Id == 1);
-
-            //Action
-
-
-        }
-
         [Theory]
         [MemberData(nameof(UpdateBalance_Success))]
         public void GivenValidData_WhenUpdateBalance_Success(int accountId, double value, string userId)

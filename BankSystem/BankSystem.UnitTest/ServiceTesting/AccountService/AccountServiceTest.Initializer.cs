@@ -20,39 +20,16 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         private Mock<IBaseRepository<int, Account>> _accountRepoMock;
         private Mock<IBaseRepository<int, TransactionHistory>> _transactionRepoMock;
         private IMapper _mapper;
-        private BankSystemDbContext dbcontxet;
-        private IBaseRepository<int, Account> _accountRepo;
-        private IBaseRepository<int, TransactionHistory> _transactionRepo;
 
         private IAccountService _accountService;
 
         public AccountServiceTest()
         {
+            _mapper = IntiMapper();
             _accountRepoMock = new Mock<IBaseRepository<int, Account>>();
             _transactionRepoMock = new Mock<IBaseRepository<int, TransactionHistory>>();
 
-            dbcontxet = new BankSystemDbContext(CreateNewContextOptions());
-            SetupFakeDb();
-
-            _accountRepo = new Repository<int, Account>(dbcontxet);
-            _transactionRepo = new Repository<int, TransactionHistory>(dbcontxet);
-
-            _accountService = new Service.Implementations.AccountService(_accountRepo, _transactionRepo, IntiMapper());
-        }
-
-        private void SetupFakeDb()
-        {
-            dbcontxet.Set<Account>().AddRange(new List<Account>()
-            {
-                new Account(){ Id = 1, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC", UserId = "1", AccountNumber = "123-1", Balance = 1000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
-                new Account(){ Id = 2, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_2", UserId = "1", AccountNumber = "123-2", Balance = 1000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
-                new Account(){ Id = 3, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_3", UserId = "2", AccountNumber = "123-3", Balance = 2000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
-                new Account(){ Id = 4, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_4", UserId = "2", AccountNumber = "123-4", Balance = 1000, Password= "1235" },
-                new Account(){ Id = 5, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_5", UserId = "3", AccountNumber = "123-5", Balance = 2000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
-                new Account(){ Id = 6, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_6", UserId = "4", AccountNumber = "123-6", Balance = 3000, Password= "12356" },
-                new Account(){ Id = 7, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_7", UserId = "5", AccountNumber = "123-7", Balance = 10000, Password= "12345" }
-            });
-            dbcontxet.CommitChanges();
+            _accountService = new Service.Implementations.AccountService(_accountRepoMock.Object, _transactionRepoMock.Object, _mapper);
         }
 
         public IMapper IntiMapper()
