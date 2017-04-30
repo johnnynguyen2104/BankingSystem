@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using BankSystem.DAL.DomainModels;
+using BankSystem.DAL.Implementations;
 using BankSystem.DAL.Interfaces;
 using BankSystem.Service;
 using BankSystem.Service.Dtos;
 using BankSystem.Service.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -17,6 +20,9 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         private Mock<IBaseRepository<int, Account>> _accountRepoMock;
         private Mock<IBaseRepository<int, TransactionHistory>> _transactionRepoMock;
         private IMapper _mapper;
+        private BankSystemDbContext dbcontxet;
+        private IBaseRepository<int, Account> _accountRepo;
+        private IBaseRepository<int, TransactionHistory> _transactionRepo;
 
         private IAccountService _accountService;
 
@@ -24,8 +30,29 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         {
             _accountRepoMock = new Mock<IBaseRepository<int, Account>>();
             _transactionRepoMock = new Mock<IBaseRepository<int, TransactionHistory>>();
-            _mapper = IntiMapper();
-            SetUp();
+
+            dbcontxet = new BankSystemDbContext(CreateNewContextOptions());
+            SetupFakeDb();
+
+            _accountRepo = new Repository<int, Account>(dbcontxet);
+            _transactionRepo = new Repository<int, TransactionHistory>(dbcontxet);
+
+            _accountService = new Service.Implementations.AccountService(_accountRepo, _transactionRepo, IntiMapper());
+        }
+
+        private void SetupFakeDb()
+        {
+            dbcontxet.Set<Account>().AddRange(new List<Account>()
+            {
+                new Account(){ Id = 1, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC", UserId = "1", AccountNumber = "123-1", Balance = 1000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
+                new Account(){ Id = 2, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_2", UserId = "1", AccountNumber = "123-2", Balance = 1000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
+                new Account(){ Id = 3, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_3", UserId = "2", AccountNumber = "123-3", Balance = 2000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
+                new Account(){ Id = 4, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_4", UserId = "2", AccountNumber = "123-4", Balance = 1000, Password= "1235" },
+                new Account(){ Id = 5, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_5", UserId = "3", AccountNumber = "123-5", Balance = 2000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
+                new Account(){ Id = 6, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_6", UserId = "4", AccountNumber = "123-6", Balance = 3000, Password= "12356" },
+                new Account(){ Id = 7, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_7", UserId = "5", AccountNumber = "123-7", Balance = 10000, Password= "12345" }
+            });
+            dbcontxet.CommitChanges();
         }
 
         public IMapper IntiMapper()
@@ -37,33 +64,35 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
 
             return config.CreateMapper();
         }
-        
-        public void SetUp()
-        {
-            
-            //_accountRepoMock.Setup(x => x.Create(It.IsAny<Account>())).Returns(new Account() { });
-            //_accountRepoMock.Setup(x => x.Read(It.IsAny<Expression<Func<Account, bool>>>())).Returns(AccountFakeDb);
-            //_accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>())).Returns(new Account() { Balance = 1000, Password= "213214" });
-            //_accountRepoMock.Setup(x => x.Update(It.IsAny<Account>()));
-            //_accountRepoMock.Setup(x => x.CommitChanges()).Returns(1);
 
-            //_transactionRepoMock.Setup(x => x.Create(It.IsAny<TransactionHistory>())).Returns(new TransactionHistory());
-            //_transactionRepoMock.Setup(x => x.Read(It.IsAny<Expression<Func<TransactionHistory, bool>>>())).Returns(TransactionFakeDb);
-            //_transactionRepoMock.Setup(x => x.CommitChanges()).Returns(1);
-           //inject fake Repository to service
-           _accountService = new Service.Implementations.AccountService(_accountRepoMock.Object, _transactionRepoMock.Object, _mapper); 
+        private DbContextOptions<BankSystemDbContext> CreateNewContextOptions()
+        {
+            // Create a fresh service provider, and therefore a fresh 
+            // InMemory database instance.
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+               
+                .BuildServiceProvider();
+
+            // Create a new options instance telling the context to use an
+            // InMemory database and the new service provider.
+            var builder = new DbContextOptionsBuilder<BankSystemDbContext>();
+            builder.UseInMemoryDatabase()
+                   .UseInternalServiceProvider(serviceProvider);
+
+            return builder.Options;
         }
 
         private static IQueryable<Account> AccountFakeDb =
              new List<Account>()
             {
-                new Account(){ Id = 1, AccountName= "ABC", UserId = "1", AccountNumber = "123-1", Balance = 1000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
-                new Account(){ Id = 2, AccountName= "ABC_2", UserId = "1", AccountNumber = "123-2", Balance = 1000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
-                new Account(){ Id = 3, AccountName= "ABC_3", UserId = "2", AccountNumber = "123-3", Balance = 2000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
-                new Account(){ Id = 4, AccountName= "ABC_4", UserId = "2", AccountNumber = "123-4", Balance = 1000, Password= "1235" },
-                new Account(){ Id = 5, AccountName= "ABC_5", UserId = "3", AccountNumber = "123-5", Balance = 2000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
-                new Account(){ Id = 6, AccountName= "ABC_6", UserId = "4", AccountNumber = "123-6", Balance = 3000, Password= "12356" },
-                new Account(){ Id = 7, AccountName= "ABC_7", UserId = "5", AccountNumber = "123-7", Balance = 10000, Password= "12345" }
+                new Account(){ Id = 1, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC", UserId = "1", AccountNumber = "123-1", Balance = 1000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
+                new Account(){ Id = 2, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_2", UserId = "1", AccountNumber = "123-2", Balance = 1000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
+                new Account(){ Id = 3, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_3", UserId = "2", AccountNumber = "123-3", Balance = 2000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
+                new Account(){ Id = 4, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_4", UserId = "2", AccountNumber = "123-4", Balance = 1000, Password= "1235" },
+                new Account(){ Id = 5, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_5", UserId = "3", AccountNumber = "123-5", Balance = 2000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
+                new Account(){ Id = 6, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_6", UserId = "4", AccountNumber = "123-6", Balance = 3000, Password= "12356" },
+                new Account(){ Id = 7, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_7", UserId = "5", AccountNumber = "123-7", Balance = 10000, Password= "12345" }
             }.AsQueryable();
 
 

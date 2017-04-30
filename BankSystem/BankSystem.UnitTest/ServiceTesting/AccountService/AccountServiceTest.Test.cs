@@ -1,6 +1,7 @@
 ﻿using BankSystem.DAL.DomainModels;
 using BankSystem.Service.Dtos;
 using BankSystem.Service.Helpers;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
  
     public partial class AccountServiceTest
     {
+
         #region Creation of Account
         [Theory]
         [MemberData(nameof(CreationAccount_Success))]
@@ -86,6 +88,18 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         #endregion
 
         #region Withdraw and Deposit 
+
+        [Fact]
+        public void Concurrency_UpdateBalance_ShouldFail()
+        {
+            //Arrange
+            var result = dbcontxet.Set<Account>().Single(a => a.Id == 1);
+
+            //Action
+
+
+        }
+
         [Theory]
         [MemberData(nameof(UpdateBalance_Success))]
         public void GivenValidData_WhenUpdateBalance_Success(int accountId, double value, string userId)
