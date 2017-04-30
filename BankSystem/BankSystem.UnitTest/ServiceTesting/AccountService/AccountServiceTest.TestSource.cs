@@ -50,18 +50,26 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             new object[] { 3, 1, "2" }
         };
 
-        public static object[] UpdateBalance_Fail = new object[]
+        public static object[] UpdateBalance_InvalidAccountId = new object[]
        {
-            new object[] { -1, 0, "1" },
+            new object[] { -1, 3, "1" },
             new object[] { -2, -100, "1" },
             new object[] { 0, 1000, "1" },
             new object[] { -3, -10, "3" },
-            new object[] { -10, 0, "2" },
+            new object[] { -10, 5, "2" },
             new object[] { -100, -1000, "1" },
             new object[] { -4, 1, "2" }
        };
 
-        public static object[] UpdateBalance_Throw = new object[]
+        public static object[] UpdateBalance_InvalidUserId = new object[]
+      {
+            new object[] { 2, -100, "" },
+            new object[] { 2, 1000, " " },
+            new object[] { 3, -10, null },
+
+      };
+
+        public static object[] UpdateBalance_AccountNotExsisted = new object[]
          {
                 new object[] { 100, 55, "222" },
                 new object[] { 2, -100, "55" },
@@ -108,10 +116,10 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
 
         public static object[] ReadAccountByNumber_Valid = new object[]
          {
-                        new object[] { "Hello" },
-                        new object[] { "ABC" },
-                        new object[] { "DSD" },
-                        new object[] { "AAS" }
+                        new object[] { "123-1" },
+                        new object[] { "123-2" },
+                        new object[] { "123-4" },
+                        new object[] { "123-5" }
          };
 
         public static object[] ReadAccountByNumber_Invalid = new object[]
@@ -121,20 +129,34 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
                         new object[] { null }
         };
 
-        public static object[] CheckAccountExisted_Existed = new object[]
+        public static object[] ReadAccountByNumber_NotExisted = new object[]
+       {
+                        new object[] { "12" },
+                        new object[] { "32" },
+                        new object[] { "dsd-12" }
+       };
+
+        public static object[] CheckAccountExisted_ExistedNoPassword = new object[]
         {
-             new object[] { 1, 2 },
-                        new object[] { 2, 3, "asda" },
-                        new object[] { 3, 4, "" },
-                        new object[] { 1, 3, null }
+             new object[] { 1, 1 },
+             new object[] { 2, 1 },
+             new object[] { 3, 2 },
+             new object[] { 5, 3 }
         };
+
+        public static object[] CheckAccountExisted_ExistedWithPassword = new object[]
+       {
+             new object[] { 1, 1, "123456" },
+             new object[] { 2, 1, "123456" },
+             new object[] { 3, 2, "123456" },
+             new object[] { 5, 3, "123456" }
+       };
 
         public static object[] CheckAccountExisted_Unexisted = new object[]
           {
-                 new object[] { 1, null },
-                            new object[] { 2, null, "" },
-                            new object[] { -1, "" },
-                            new object[] { -1, null, null }
+                 new object[] { 34, "3" },
+                            new object[] { 222, "1" },
+                            new object[] {44, "1" }
           };
 
         public static object[] ReadAccount_Valid = new object[]
@@ -164,8 +186,8 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         public static object[] ReadTransactions_Valid = new object[]
           {
                             new object[] { "1", 1, 1, 1 },
-                            new object[] { "3", 2, -4, 10 },
-                            new object[] { "4", 3, -3, 4 }
+                            new object[] { "1", 2, 4, 10 },
+                            new object[] { "2", 3, 3, 4 }
           };
     }
 }
