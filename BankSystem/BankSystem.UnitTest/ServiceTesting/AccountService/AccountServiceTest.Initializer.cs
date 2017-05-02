@@ -69,7 +69,8 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
                 new Account(){ Id = 4, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_4", UserId = "2", AccountNumber = "123-4", Balance = 1000, Password= "1235" },
                 new Account(){ Id = 5, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_5", UserId = "3", AccountNumber = "123-5", Balance = 2000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
                 new Account(){ Id = 6, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_6", UserId = "4", AccountNumber = "123-6", Balance = 3000, Password= "12356" },
-                new Account(){ Id = 7, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_7", UserId = "5", AccountNumber = "123-7", Balance = 10000, Password= "12345" }
+                new Account(){ Id = 7, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_7", UserId = "5", AccountNumber = "123-7", Balance = 10000, Password= "12345" },
+                 new Account(){ Id = 8, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_8", UserId = "5", AccountNumber = "123-8", Balance = 213.43, Password= "12345" }
             }.AsQueryable();
 
 

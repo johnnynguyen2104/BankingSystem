@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace BankSystem.UnitTest.ServiceTesting.AccountService
@@ -278,7 +280,7 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             _transactionRepoMock.Setup(a => a.Create(It.IsAny<TransactionHistory>())).Verifiable();
 
             //action
-            KeyNotFoundException ex = Assert.Throws<KeyNotFoundException>(() => _accountService.TransferMoney(1, 1000, 200));
+            KeyNotFoundException ex = Assert.Throws<KeyNotFoundException>(() => _accountService.TransferMoney(1, 10, 200));
 
             //assert
             Assert.NotNull(ex);
@@ -289,8 +291,7 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         }
 
         [Theory]
-        [InlineData(new object[] { 1, 55, 2 })]
-        [InlineData(new object[] { 2, 5, 3 })]
+        [MemberData(nameof(Transfer_Success))]
         public void GivenCorrectData_WhenTransfer_Success(int accountId, double value, int desAccountId)
         {
             //arrange
@@ -314,8 +315,50 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             var result = _accountService.TransferMoney(accountId, value, desAccountId);
 
             //assert
+            Assert.True(result);
             Assert.True(sourceAccount.Balance == (originalSAccountBalance - value));
             Assert.True(desAccount.Balance == (originalDAccountBalance + value));
+            _accountRepoMock.Verify(a => a.CommitChanges(), Times.Once);
+            _accountRepoMock.Verify(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()), Times.Exactly(2));
+            _transactionRepoMock.Verify(a => a.Create(It.IsAny<TransactionHistory>()), Times.Exactly(2));
+            _transactionRepoMock.Verify(a => a.CommitChanges(), Times.Once);
+        }
+
+        [Theory]
+        [MemberData(nameof(Transfer_Success_Concurrency))]
+        public async Task GivenCorrectData_WhenTransfer_Success_Concurrency(int accountId, double value, int desAccountId)
+        {
+            //arrange 
+            _accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
+                 .Returns((Expression<Func<Account, bool>> expression) => {
+                     var data = AccountFakeDb.SingleOrDefault(expression);
+                     return data;
+                 })
+                 .Verifiable();
+
+            _accountRepoMock.Setup(x => x.CommitChanges()).Returns(1).Verifiable();
+
+            _transactionRepoMock.Setup(a => a.Create(It.IsAny<TransactionHistory>())).Verifiable();
+            _transactionRepoMock.Setup(a => a.CommitChanges()).Returns(1).Verifiable();
+
+            var sourceAccount = AccountFakeDb.SingleOrDefault(a => a.Id == accountId);
+            var desAccount = AccountFakeDb.SingleOrDefault(a => a.Id == desAccountId);
+            double originalSAccountBalance = sourceAccount.Balance
+                , originalDAccountBalance = desAccount.Balance;
+
+            //action
+            var result = await Task<bool>.Factory.StartNew(() =>
+            {
+                return _accountService.TransferMoney(accountId, value, desAccountId);
+            });
+
+            //assert
+
+            Assert.True(result);
+            Assert.True(sourceAccount.Balance == (originalSAccountBalance - value)
+                        && sourceAccount.Id == accountId);
+            Assert.True(desAccount.Balance == (originalDAccountBalance + value)
+                        && desAccount.Id == desAccountId);
             _accountRepoMock.Verify(a => a.CommitChanges(), Times.Once);
             _accountRepoMock.Verify(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()), Times.Exactly(2));
             _transactionRepoMock.Verify(a => a.Create(It.IsAny<TransactionHistory>()), Times.Exactly(2));

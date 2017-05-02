@@ -1,4 +1,5 @@
 ﻿using BankSystem.Service.Dtos;
+using BankSystem.UnitTest.ServiceTesting.TestingModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -102,15 +103,34 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
                 new object[] { 4, -1, -1 }
       };
 
-        public static object[] Transfer_True = new object[]
+        public static object[] Transfer_Success = new object[]
+        {
+            new object[] { 1, 55, 2 },
+            new object[] { 2, 5, 3 },
+            new object[] { 2, 5.25, 3 },
+            new object[] { 2, 10.03, 3 },
+            new object[] { 8, 102.52, 2 },
+            new object[] { 1, 5, 2 },
+            new object[] { 2, 10, 3 },
+            new object[] { 3, 0.25, 2 },
+            new object[] { 2, 3.25, 3 },
+            new object[] { 3, 10.03, 2 },
+            new object[] { 2, 10.23, 8 }
+        };
+
+        public static object[] Transfer_Success_Concurrency = new object[]
        {
-                    new object[] { 100, 10, 222 },
-                    new object[] { 223, 30, 1 },
-                    new object[] { 300, 40, 3 },
-                    new object[] { 5, 555, 33 },
-                    new object[] { 5, 19, 21 },
-                    new object[] { 100, 52, 44 },
-                    new object[] { 4, 5, 1 }
+            new object[]{1, 55, 2 },
+            new object[]{2, 5, 3 },
+            new object[]{ 2, 5.25, 3 },
+            new object[]{ 2, 10.03, 3 },
+            new object[]{ 8, 102.52, 2 },
+            new object[]{1, 5, 2 },
+            new object[]{2, 10, 3 },
+            new object[]{ 3, 0.25, 2 },
+            new object[]{2, 3.25, 3 },
+            new object[]{3, 10.03, 2 },
+            new object[]{2, 10.23, 8 }
        };
 
 
