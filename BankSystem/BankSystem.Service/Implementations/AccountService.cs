@@ -207,25 +207,22 @@ namespace BankSystem.Service.Implementations
                 throw new ArgumentException("Can't transfer to the same account.", "accountId");
             }
 
-            var account = _accountRepo.ReadOne(a => a.Id == accountId);
             
 
-            if (account != null)
+
+            if (_accountRepo.Read(a => a.Id == accountId || a.Id == desAccountId).Count() == 2)
             {
+                var account = _accountRepo.ReadOne(a => a.Id == accountId);
+
                 if (account.Balance < value)
                 {
                     throw new Exception("Account dont have enough money. Please try again.");
                 }
 
+                account = _accountRepo.ReadOne(a => a.Id == accountId);
                 var desAccount = _accountRepo.ReadOne(a => a.Id == desAccountId);
-
-                if (desAccount == null)
-                {
-                    throw new KeyNotFoundException("Can't find destination Account");
-                }
-
                 account.Balance -= value;
-                desAccount.Balance += value;               
+                desAccount.Balance += value;
 
                 _accountRepo.Update(account);
                 _accountRepo.Update(desAccount);
@@ -244,7 +241,7 @@ namespace BankSystem.Service.Implementations
                 return completed;
             }
 
-            throw new KeyNotFoundException("Can't find source Account");
+            throw new KeyNotFoundException("Can't find source account or destination account");
         }
 
         private int CreateTransactionHistoryFundTransfer(double value, Account account, Account desAccount)

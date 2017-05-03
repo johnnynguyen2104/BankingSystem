@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BankSystem.UnitTest.ServiceTesting.AccountService
 {
-    public partial class AccountServiceTest
+    public partial class SetupAccountServiceTest
     {
         public static object[] CreationAccount_Success = new object[]
         {

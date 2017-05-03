@@ -14,7 +14,7 @@ using Xunit;
 namespace BankSystem.UnitTest.ServiceTesting.AccountService
 {
  
-    public partial class AccountServiceTest
+    public partial class AccountServiceTest : SetupAccountServiceTest
     {
 
         #region Creation of Account
@@ -26,7 +26,7 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             string originalPass = entity.Password;
 
             _accountRepoMock.Setup(x => x.Create(It.IsAny<Account>()))
-                .Returns(delegate() 
+                .Returns(delegate ()
                 {
                     entity.Id = 1;
                     return _mapper.Map<Account>(entity);
@@ -90,19 +90,22 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         #endregion
 
         #region Withdraw and Deposit 
-
         [Theory]
         [MemberData(nameof(UpdateBalance_Success))]
         public void GivenValidData_WhenUpdateBalance_Success(int accountId, double value, string userId)
         {
             //arrange 
-            Account account = new Account() { Id = accountId, AccountName = "A", AccountNumber = "ABC-1", Balance = 10000, UserId = userId };
+            var account = AccountFakeDb.SingleOrDefault(a => a.Id == accountId);
             double originalValue = account.Balance;
-            Expression<Func<Account, bool>> expression = (a => a.Id == accountId && a.UserId == userId);
 
             _accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
-                .Returns(account)
+                .Returns((Expression<Func<Account, bool>> expression) =>
+                {
+                    var data = AccountFakeDb.SingleOrDefault(expression);
+                    return data;
+                })
                 .Verifiable();
+
             _accountRepoMock.Setup(a => a.CommitChanges())
                 .Returns(1);
 
@@ -114,7 +117,8 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             var result = _accountService.UpdateBalance(value, accountId, userId);
 
             //assert
-            Assert.True((account.Balance == (originalValue + value)));
+            Assert.True(result);
+            Assert.True((account.Balance == (originalValue + value)) && account.Id == accountId);
             _accountRepoMock.Verify(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()), Times.Once);
             _transactionRepoMock.Verify(a => a.Create(It.IsAny<TransactionHistory>()), Times.Once);
             _transactionRepoMock.Verify(a => a.CommitChanges(), Times.Once);
@@ -125,7 +129,7 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         public void GivenInvalidAccountId_WhenUpdateBalance_ThrowArgumentException(int accountId, double value, string userId)
         {
             //arrange & Action
-            ArgumentException exceptionResult 
+            ArgumentException exceptionResult
                 = Assert.Throws<ArgumentException>(() => _accountService.UpdateBalance(value, accountId, userId));
 
             //assert
@@ -180,7 +184,7 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             //arrange & Action
             _accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
                 .Verifiable("ReadOne shouldn't be called because invalid value.");
-            ArgumentException ex = Assert.Throws<ArgumentException>(() => _accountService.TransferMoney(1,  -1, 2));
+            ArgumentException ex = Assert.Throws<ArgumentException>(() => _accountService.TransferMoney(1, -1, 2));
 
             //assert
             Assert.True(ex.ParamName == "value");
@@ -254,7 +258,7 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             _transactionRepoMock.Setup(a => a.Create(It.IsAny<TransactionHistory>())).Verifiable();
 
             //action
-            KeyNotFoundException ex = Assert.Throws<KeyNotFoundException>(() => _accountService.TransferMoney(1, 1000, 2));
+            KeyNotFoundException ex = Assert.Throws<KeyNotFoundException>(() => _accountService.TransferMoney(100, 1000, 2));
 
             //assert
             Assert.NotNull(ex);
@@ -269,7 +273,8 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         {
             //arrange
             _accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
-                .Returns((Expression<Func<Account, bool>> expression) => {
+                .Returns((Expression<Func<Account, bool>> expression) =>
+                {
                     var result = AccountFakeDb.SingleOrDefault(expression);
                     return result;
                 })
@@ -295,46 +300,21 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         public void GivenCorrectData_WhenTransfer_Success(int accountId, double value, int desAccountId)
         {
             //arrange
-            var sourceAccount = AccountFakeDb.SingleOrDefault(a => a.Id == accountId);
-            var desAccount = AccountFakeDb.SingleOrDefault(a => a.Id == desAccountId);
-            double originalSAccountBalance = sourceAccount.Balance
-                , originalDAccountBalance = desAccount.Balance; 
+            _accountRepoMock.Setup(x => x.Read(It.IsAny<Expression<Func<Account, bool>>>()))
+              .Returns((Expression<Func<Account, bool>> expression) =>
+              {
+                  var data = AccountFakeDb.Where(expression);
+                  return data;
+              })
+              .Verifiable();
 
             _accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
-                .Returns((Expression<Func<Account, bool>> expression) => {
+                .Returns((Expression<Func<Account, bool>> expression) =>
+                {
                     var data = AccountFakeDb.SingleOrDefault(expression);
                     return data;
                 })
                 .Verifiable();
-
-            _accountRepoMock.Setup(x => x.CommitChanges()).Returns(1).Verifiable();
-
-            _transactionRepoMock.Setup(a => a.Create(It.IsAny<TransactionHistory>())).Verifiable();
-            _transactionRepoMock.Setup(a => a.CommitChanges()).Returns(1).Verifiable();
-            //action
-            var result = _accountService.TransferMoney(accountId, value, desAccountId);
-
-            //assert
-            Assert.True(result);
-            Assert.True(sourceAccount.Balance == (originalSAccountBalance - value));
-            Assert.True(desAccount.Balance == (originalDAccountBalance + value));
-            _accountRepoMock.Verify(a => a.CommitChanges(), Times.Once);
-            _accountRepoMock.Verify(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()), Times.Exactly(2));
-            _transactionRepoMock.Verify(a => a.Create(It.IsAny<TransactionHistory>()), Times.Exactly(2));
-            _transactionRepoMock.Verify(a => a.CommitChanges(), Times.Once);
-        }
-
-        [Theory]
-        [MemberData(nameof(Transfer_Success_Concurrency))]
-        public async Task GivenCorrectData_WhenTransfer_Success_Concurrency(int accountId, double value, int desAccountId)
-        {
-            //arrange 
-            _accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
-                 .Returns((Expression<Func<Account, bool>> expression) => {
-                     var data = AccountFakeDb.SingleOrDefault(expression);
-                     return data;
-                 })
-                 .Verifiable();
 
             _accountRepoMock.Setup(x => x.CommitChanges()).Returns(1).Verifiable();
 
@@ -345,20 +325,15 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             var desAccount = AccountFakeDb.SingleOrDefault(a => a.Id == desAccountId);
             double originalSAccountBalance = sourceAccount.Balance
                 , originalDAccountBalance = desAccount.Balance;
-
             //action
-            var result = await Task<bool>.Factory.StartNew(() =>
-            {
-                return _accountService.TransferMoney(accountId, value, desAccountId);
-            });
+            var result = _accountService.TransferMoney(accountId, value, desAccountId);
 
             //assert
-
             Assert.True(result);
             Assert.True(sourceAccount.Balance == (originalSAccountBalance - value)
-                        && sourceAccount.Id == accountId);
+                && sourceAccount.Id == accountId);
             Assert.True(desAccount.Balance == (originalDAccountBalance + value)
-                        && desAccount.Id == desAccountId);
+                && desAccount.Id == desAccountId);
             _accountRepoMock.Verify(a => a.CommitChanges(), Times.Once);
             _accountRepoMock.Verify(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()), Times.Exactly(2));
             _transactionRepoMock.Verify(a => a.Create(It.IsAny<TransactionHistory>()), Times.Exactly(2));
@@ -373,7 +348,8 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         {
             //arrange
             _accountRepoMock.Setup(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
-                .Returns((Expression<Func<Account, bool>> expression) => {
+                .Returns((Expression<Func<Account, bool>> expression) =>
+                {
                     var data = AccountFakeDb.SingleOrDefault(expression);
                     return data;
                 });
@@ -402,7 +378,8 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         {
             //arrange 
             _accountRepoMock.Setup(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
-               .Returns((Expression<Func<Account, bool>> expression) => {
+               .Returns((Expression<Func<Account, bool>> expression) =>
+               {
                    var data = AccountFakeDb.SingleOrDefault(expression);
                    return data;
                });
@@ -423,7 +400,8 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             Account foundEntity = new Account();
 
             _accountRepoMock.Setup(a => a.Read(It.IsAny<Expression<Func<Account, bool>>>())).
-               Returns((Expression<Func<Account, bool>> exp) => {
+               Returns((Expression<Func<Account, bool>> exp) =>
+               {
                    var data = AccountFakeDb.Where(exp);
                    foundEntity = AccountFakeDb.First(exp);
                    return data;
@@ -443,10 +421,11 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         public void GivenExistedAccountWithPassword_WhenCheckExistedAccount_True(int? accountId, string userId, string password = "")
         {
             //arrange 
-            Account foundEntity= new Account();
+            Account foundEntity = new Account();
 
             _accountRepoMock.Setup(a => a.Read(It.IsAny<Expression<Func<Account, bool>>>())).
-               Returns((Expression<Func<Account, bool>> exp) => {
+               Returns((Expression<Func<Account, bool>> exp) =>
+               {
                    var data = AccountFakeDb.Where(exp);
 
                    foundEntity = AccountFakeDb.First(exp);
@@ -458,7 +437,7 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
 
             //assert
             Assert.Equal(true, result);
-            Assert.True(foundEntity.Id == accountId 
+            Assert.True(foundEntity.Id == accountId
                 && foundEntity.UserId == userId
                 && foundEntity.Password == PasswordHelper.HashPassword(password));
         }
@@ -469,7 +448,8 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         {
             //arrange 
             _accountRepoMock.Setup(a => a.Read(It.IsAny<Expression<Func<Account, bool>>>())).
-                Returns((Expression<Func<Account, bool>> expression) => {
+                Returns((Expression<Func<Account, bool>> expression) =>
+                {
                     var data = AccountFakeDb.Where(expression);
                     return data;
                 });
@@ -519,7 +499,8 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         {
             //arrange 
             _transactionRepoMock.Setup(a => a.Read(It.IsAny<Expression<Func<TransactionHistory, bool>>>()))
-                .Returns((Expression<Func<TransactionHistory, bool>> exp) => {
+                .Returns((Expression<Func<TransactionHistory, bool>> exp) =>
+                {
                     var data = TransactionFakeDb.Where(exp);
                     return data;
                 });
@@ -552,5 +533,91 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             _transactionRepoMock.Verify(a => a.Read(It.IsAny<Expression<Func<TransactionHistory, bool>>>()), Times.Never);
         }
         #endregion
+    }
+
+    public class ConcurrencyAgainst_AccountServiceTest : SetupAccountServiceTest
+    {
+
+        [Theory]
+        [MemberData(nameof(UpdateBalance_Success))]
+        public void GivenValidData_WhenUpdateBalance_Success_Concurrency(int accountId, double value, string userId)
+        {
+            //arrange 
+            var account = AccountFakeDb.SingleOrDefault(a => a.Id == accountId);
+            double originalValue = account.Balance;
+
+            _accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns((Expression<Func<Account, bool>> expression) =>
+                {
+                    var data = AccountFakeDb.SingleOrDefault(expression);
+                    return data;
+                })
+                .Verifiable();
+
+            _accountRepoMock.Setup(a => a.CommitChanges())
+                .Returns(1);
+
+            _transactionRepoMock.Setup(a => a.Create(It.IsAny<TransactionHistory>()))
+                .Verifiable("Creation of transaction should be call at least once");
+            _transactionRepoMock.Setup(a => a.CommitChanges())
+                .Verifiable("Saving changes transaction should be call at least once");
+            // Action
+            var result = _accountService.UpdateBalance(value, accountId, userId);
+
+            //assert
+            Assert.True(result);
+            Assert.True((account.Balance == (originalValue + value)) && account.Id == accountId);
+            _accountRepoMock.Verify(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()), Times.Once);
+            _transactionRepoMock.Verify(a => a.Create(It.IsAny<TransactionHistory>()), Times.Once);
+            _transactionRepoMock.Verify(a => a.CommitChanges(), Times.Once);
+        }
+
+        [Theory]
+        [MemberData(nameof(Transfer_Success))]
+        public void GivenCorrectData_WhenTransfer_Success_Concurrency(int accountId, double value, int desAccountId)
+        {
+            //arrange
+            _accountRepoMock.Setup(x => x.Read(It.IsAny<Expression<Func<Account, bool>>>()))
+           .Returns((Expression<Func<Account, bool>> expression) =>
+           {
+               var data = AccountFakeDb.Where(expression);
+               return data;
+           })
+           .Verifiable();
+
+            _accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns((Expression<Func<Account, bool>> expression) =>
+                {
+                    var data = AccountFakeDb.SingleOrDefault(expression);
+                    return data;
+                })
+                .Verifiable();
+
+            _accountRepoMock.Setup(a => a.Update(It.IsAny<Account>()));
+
+            _accountRepoMock.Setup(x => x.CommitChanges()).Returns(1).Verifiable();
+
+            _transactionRepoMock.Setup(a => a.Create(It.IsAny<TransactionHistory>())).Verifiable();
+            _transactionRepoMock.Setup(a => a.CommitChanges()).Returns(1).Verifiable();
+
+            var sourceAccount = AccountFakeDb.SingleOrDefault(a => a.Id == accountId);
+            var desAccount = AccountFakeDb.SingleOrDefault(a => a.Id == desAccountId);
+            double originalSAccountBalance = sourceAccount.Balance
+                , originalDAccountBalance = desAccount.Balance;
+
+            //action
+            var result = _accountService.TransferMoney(accountId, value, desAccountId);
+
+            //assert
+            Assert.True(result);
+            Assert.True(sourceAccount.Balance == (originalSAccountBalance - value)
+                && sourceAccount.Id == accountId);
+            Assert.True(desAccount.Balance == (originalDAccountBalance + value)
+                && desAccount.Id == desAccountId);
+            _accountRepoMock.Verify(a => a.CommitChanges(), Times.Once);
+            _accountRepoMock.Verify(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()), Times.Exactly(2));
+            _transactionRepoMock.Verify(a => a.Create(It.IsAny<TransactionHistory>()), Times.Exactly(2));
+            _transactionRepoMock.Verify(a => a.CommitChanges(), Times.Once);
+        }
     }
 }
