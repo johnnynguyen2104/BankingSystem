@@ -96,8 +96,10 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         public void GivenValidData_WhenUpdateBalance_Success_Concurrency(int accountId, double value, string userId)
         {
             //arrange 
+            Exception result = null;
+            string errorMessage = "Data was updated please reload the data";
             var account = AccountFakeDb.SingleOrDefault(a => a.Id == accountId);
-            double originalValue = account.Balance;
+            byte[] rowVersion = account.RowVersion;
 
             _accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
                 .Returns((Expression<Func<Account, bool>> expression) =>
@@ -108,18 +110,29 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
                 .Verifiable();
 
             _accountRepoMock.Setup(a => a.CommitChanges())
-                .Returns(1);
+                .Returns(() => 
+                {
+                    if (AccountFakeDb.SingleOrDefault(a => a.Id == accountId && a.RowVersion == rowVersion) == null)
+                    {
+                        result = new Exception(errorMessage);
+                    }
+                    account.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
+                    return 1;
+                });
 
             _transactionRepoMock.Setup(a => a.Create(It.IsAny<TransactionHistory>()))
                 .Verifiable("Creation of transaction should be call at least once");
             _transactionRepoMock.Setup(a => a.CommitChanges())
                 .Verifiable("Saving changes transaction should be call at least once");
             // Action
-            var result = _accountService.UpdateBalance(value, accountId, userId);
+            _accountService.UpdateBalance(value, accountId, userId);
 
             //assert
-            Assert.True(result);
-            Assert.True((account.Balance == (originalValue + value)) && account.Id == accountId);
+            if (result != null)
+            {
+                Assert.True(result.Message == errorMessage);
+            }
+
             _accountRepoMock.Verify(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()), Times.Once);
             _transactionRepoMock.Verify(a => a.Create(It.IsAny<TransactionHistory>()), Times.Once);
             _transactionRepoMock.Verify(a => a.CommitChanges(), Times.Once);
@@ -664,8 +677,10 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         public void GivenValidData_WhenUpdateBalance_Success_Concurrency(int accountId, double value, string userId)
         {
             //arrange 
+            Exception result = null;
+            string errorMessage = "Data was updated please reload the data";
             var account = AccountFakeDb.SingleOrDefault(a => a.Id == accountId);
-            double originalValue = account.Balance;
+            byte[] rowVersion = account.RowVersion;
 
             _accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
                 .Returns((Expression<Func<Account, bool>> expression) =>
@@ -676,18 +691,29 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
                 .Verifiable();
 
             _accountRepoMock.Setup(a => a.CommitChanges())
-                .Returns(1);
+                .Returns(() =>
+                {
+                    if (AccountFakeDb.SingleOrDefault(a => a.Id == accountId && a.RowVersion == rowVersion) == null)
+                    {
+                        result = new Exception(errorMessage);
+                    }
+                    account.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
+                    return 1;
+                });
 
             _transactionRepoMock.Setup(a => a.Create(It.IsAny<TransactionHistory>()))
                 .Verifiable("Creation of transaction should be call at least once");
             _transactionRepoMock.Setup(a => a.CommitChanges())
                 .Verifiable("Saving changes transaction should be call at least once");
             // Action
-            var result = _accountService.UpdateBalance(value, accountId, userId);
+            _accountService.UpdateBalance(value, accountId, userId);
 
             //assert
-            Assert.True(result);
-            Assert.True((account.Balance == (originalValue + value)) && account.Id == accountId);
+            if (result != null)
+            {
+                Assert.True(result.Message == errorMessage);
+            }
+
             _accountRepoMock.Verify(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()), Times.Once);
             _transactionRepoMock.Verify(a => a.Create(It.IsAny<TransactionHistory>()), Times.Once);
             _transactionRepoMock.Verify(a => a.CommitChanges(), Times.Once);
