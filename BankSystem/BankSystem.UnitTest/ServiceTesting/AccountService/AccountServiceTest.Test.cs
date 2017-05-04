@@ -11,10 +11,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
+[assembly: CollectionBehavior(MaxParallelThreads = 10)]
 namespace BankSystem.UnitTest.ServiceTesting.AccountService
 {
  
-    public partial class AccountServiceTest : SetupAccountServiceTest
+    public class AccountServiceTest : SetupAccountServiceTest
     {
 
         #region Creation of Account
@@ -90,54 +91,6 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         #endregion
 
         #region Withdraw and Deposit 
-
-        [Theory]
-        [MemberData(nameof(UpdateBalance_Success))]
-        public void GivenValidData_WhenUpdateBalance_Success_Concurrency(int accountId, double value, string userId)
-        {
-            //arrange 
-            Exception result = null;
-            string errorMessage = "Data was updated please reload the data";
-            var account = AccountFakeDb.SingleOrDefault(a => a.Id == accountId);
-            byte[] rowVersion = account.RowVersion;
-
-            _accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
-                .Returns((Expression<Func<Account, bool>> expression) =>
-                {
-                    var data = AccountFakeDb.SingleOrDefault(expression);
-                    return data;
-                })
-                .Verifiable();
-
-            _accountRepoMock.Setup(a => a.CommitChanges())
-                .Returns(() => 
-                {
-                    if (AccountFakeDb.SingleOrDefault(a => a.Id == accountId && a.RowVersion == rowVersion) == null)
-                    {
-                        result = new Exception(errorMessage);
-                    }
-                    account.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
-                    return 1;
-                });
-
-            _transactionRepoMock.Setup(a => a.Create(It.IsAny<TransactionHistory>()))
-                .Verifiable("Creation of transaction should be call at least once");
-            _transactionRepoMock.Setup(a => a.CommitChanges())
-                .Verifiable("Saving changes transaction should be call at least once");
-            // Action
-            _accountService.UpdateBalance(value, accountId, userId);
-
-            //assert
-            if (result != null)
-            {
-                Assert.True(result.Message == errorMessage);
-            }
-
-            _accountRepoMock.Verify(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()), Times.Once);
-            _transactionRepoMock.Verify(a => a.Create(It.IsAny<TransactionHistory>()), Times.Once);
-            _transactionRepoMock.Verify(a => a.CommitChanges(), Times.Once);
-        }
-
         [Theory]
         [MemberData(nameof(UpdateBalance_Success))]
         public void GivenValidData_WhenUpdateBalance_Success(int accountId, double value, string userId)
@@ -411,66 +364,65 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         }
 
 
-        [Theory]
-        [MemberData(nameof(Transfer_Success))]
-        public void GivenCorrectData_WhenTransfer_Success_Concurrency(int accountId, double value, int desAccountId)
-        {
-            //arrange
-            Exception result = null;
-            string errorMessage = "Data was updated please reload the data";
-            var sourceAccount = AccountFakeDb.SingleOrDefault(a => a.Id == accountId);
-            var desAccount = AccountFakeDb.SingleOrDefault(a => a.Id == desAccountId);
-            byte[] rowVersionAccount = sourceAccount.RowVersion, rowVersionDesAccount = desAccount.RowVersion;
+        //[SkippableTheory]
+        //[MemberData(nameof(Transfer_Success))]
+        //public void GivenCorrectData_WhenTransfer_Success_Concurrency(int accountId, double value, int desAccountId)
+        //{
+        //    //arrange
+        //    Exception result = null;
+        //    string errorMessage = "Data was updated please reload the data";
+        //    var sourceAccount = AccountFakeDb.SingleOrDefault(a => a.Id == accountId);
+        //    var desAccount = AccountFakeDb.SingleOrDefault(a => a.Id == desAccountId);
+        //    byte[] rowVersionAccount = sourceAccount.RowVersion, rowVersionDesAccount = desAccount.RowVersion;
 
 
-            _accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
-                .Returns((Expression<Func<Account, bool>> expression) =>
-                {
-                    var data = AccountFakeDb.SingleOrDefault(expression);
-                    return data;
-                })
-                .Verifiable();
+        //    _accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
+        //        .Returns((Expression<Func<Account, bool>> expression) =>
+        //        {
+        //            var data = AccountFakeDb.SingleOrDefault(expression);
+        //            return data;
+        //        })
+        //        .Verifiable();
 
-            _accountRepoMock.Setup(a => a.Update(It.IsAny<Account>()))
-               .Returns(1);
+        //    _accountRepoMock.Setup(a => a.Update(It.IsAny<Account>()))
+        //       .Returns(1);
 
-            _accountRepoMock.Setup(x => x.CommitChanges()).Returns(() =>
-            {
+        //    _accountRepoMock.Setup(x => x.CommitChanges()).Returns(() =>
+        //    {
 
-                if (AccountFakeDb.Count(a => a.RowVersion == rowVersionAccount || a.RowVersion == rowVersionDesAccount) < 2)
-                {
-                    //Not throwing this because the concurrency problem sometimes happend 
-                    //and xUnit doesn't support Inconclusive result 
-                    //So that why I new a exception instead of throw DbUpdateConcurrencyException
-                    result = new Exception(errorMessage);
-                    return 0;
-                }
-                else
-                {
+        //        if (AccountFakeDb.Count(a => a.RowVersion == rowVersionAccount || a.RowVersion == rowVersionDesAccount) < 2)
+        //        {
 
-                    sourceAccount.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
-                    desAccount.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
-                    return 1;
-                }
+        //            //Not throwing this because the concurrency problem sometimes happend 
+        //            //and xUnit doesn't support Inconclusive result 
+        //            //So that why I new a exception instead of throw DbUpdateConcurrencyException
+        //            result = new Exception(errorMessage);
+        //            return 0;
+        //        }
 
-            }).Verifiable();
+        //        sourceAccount.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
+        //        desAccount.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
+        //        Skip.If(result == null);
+        //        return 1;
 
-            _transactionRepoMock.Setup(a => a.Create(It.IsAny<TransactionHistory>())).Verifiable();
-            _transactionRepoMock.Setup(a => a.CommitChanges()).Returns(1).Verifiable();
+        //    }).Verifiable();
 
-            //action
-            _accountService.TransferMoney(accountId, value, desAccountId);
+        //    _transactionRepoMock.Setup(a => a.Create(It.IsAny<TransactionHistory>())).Verifiable();
+        //    _transactionRepoMock.Setup(a => a.CommitChanges()).Returns(1).Verifiable();
 
-            if (result != null)
-            {
-                //assert
-                Assert.True(result.Message == errorMessage);
-            }
-            //verify
-            _accountRepoMock.Verify(a => a.CommitChanges(), Times.Once);
-            _accountRepoMock.Verify(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()), Times.Exactly(2));
+        //    //action
+        //    _accountService.TransferMoney(accountId, value, desAccountId);
 
-        }
+        //    if (result != null)
+        //    {
+        //        //assert
+        //        Assert.True(result.Message == errorMessage);
+        //    }
+        //    //verify
+        //    _accountRepoMock.Verify(a => a.CommitChanges(), Times.Once);
+        //    _accountRepoMock.Verify(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()), Times.Exactly(2));
+
+        //}
 
 
         #endregion
@@ -669,12 +621,13 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         #endregion
     }
 
-    public class ConcurrencyAgainst_AccountServiceTest : SetupAccountServiceTest
+    
+    public class ConcurrencyAccountServiceTest : SetupAccountServiceTest
     {
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(UpdateBalance_Success))]
-        public void GivenValidData_WhenUpdateBalance_Success_Concurrency(int accountId, double value, string userId)
+        public async Task GivenValidData_WhenUpdateBalance_Success_Concurrency(int accountId, double value, string userId)
         {
             //arrange 
             Exception result = null;
@@ -695,9 +648,15 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
                 {
                     if (AccountFakeDb.SingleOrDefault(a => a.Id == accountId && a.RowVersion == rowVersion) == null)
                     {
+                        //Not throwing this because the concurrency problem sometimes happend 
+                        //and xUnit doesn't support Inconclusive result 
+                        //So that why I new a exception instead of throw DbUpdateConcurrencyException
                         result = new Exception(errorMessage);
+                        return 0;
                     }
                     account.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
+
+                    Skip.If(result == null);
                     return 1;
                 });
 
@@ -706,7 +665,7 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             _transactionRepoMock.Setup(a => a.CommitChanges())
                 .Verifiable("Saving changes transaction should be call at least once");
             // Action
-            _accountService.UpdateBalance(value, accountId, userId);
+            await Task<bool>.Factory.StartNew(() => _accountService.UpdateBalance(value, accountId, userId));
 
             //assert
             if (result != null)
@@ -715,13 +674,13 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             }
 
             _accountRepoMock.Verify(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()), Times.Once);
-            _transactionRepoMock.Verify(a => a.Create(It.IsAny<TransactionHistory>()), Times.Once);
-            _transactionRepoMock.Verify(a => a.CommitChanges(), Times.Once);
+            _transactionRepoMock.Verify(a => a.Create(It.IsAny<TransactionHistory>()), Times.Never);
+            _transactionRepoMock.Verify(a => a.CommitChanges(), Times.Never);
         }
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(Transfer_Success))]
-        public void GivenCorrectData_WhenTransfer_Success_Concurrency(int accountId, double value, int desAccountId)
+        public async Task GivenCorrectData_WhenTransfer_Success_Concurrency(int accountId, double value, int desAccountId)
         {
             //arrange
             Exception result = null;
@@ -740,12 +699,13 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
                 .Verifiable();
 
             _accountRepoMock.Setup(a => a.Update(It.IsAny<Account>()))
-               .Returns(1);
+                .Returns(1);
 
             _accountRepoMock.Setup(x => x.CommitChanges()).Returns(() =>
             {
 
-                if (AccountFakeDb.Count(a => a.RowVersion == rowVersionAccount || a.RowVersion == rowVersionDesAccount) < 2)
+                if (AccountFakeDb.Count(a => a.RowVersion == rowVersionAccount
+                                             || a.RowVersion == rowVersionDesAccount) < 2)
                 {
 
                     //Not throwing this because the concurrency problem sometimes happend 
@@ -754,21 +714,139 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
                     result = new Exception(errorMessage);
                     return 0;
                 }
-                else
-                {
 
-                    sourceAccount.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
-                    desAccount.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
-                    return 1;
-                }
-  
+                sourceAccount.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
+                desAccount.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
+                Skip.If(result == null);
+                return 1;
+
+
             }).Verifiable();
 
             _transactionRepoMock.Setup(a => a.Create(It.IsAny<TransactionHistory>())).Verifiable();
             _transactionRepoMock.Setup(a => a.CommitChanges()).Returns(1).Verifiable();
 
             //action
-            _accountService.TransferMoney(accountId, value, desAccountId);
+            await Task<bool>.Factory.StartNew(() => _accountService.TransferMoney(accountId, value, desAccountId));
+
+            if (result != null)
+            {
+                //assert
+                Assert.True(result.Message == errorMessage);
+            }
+
+            //verify
+            _accountRepoMock.Verify(a => a.CommitChanges(), Times.Once);
+            _accountRepoMock.Verify(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()), Times.Exactly(2));
+        }
+    }
+
+    public class ConcurrencyAccountServiceTest2 : SetupAccountServiceTest
+    {
+
+        [SkippableTheory]
+        [MemberData(nameof(UpdateBalance_Success))]
+        public async Task GivenValidData_WhenUpdateBalance_Success_Concurrency(int accountId, double value, string userId)
+        {
+            //arrange 
+            Exception result = null;
+            string errorMessage = "Data was updated please reload the data";
+            var account = AccountFakeDb.SingleOrDefault(a => a.Id == accountId);
+            byte[] rowVersion = account.RowVersion;
+
+            _accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns((Expression<Func<Account, bool>> expression) =>
+                {
+                    var data = AccountFakeDb.SingleOrDefault(expression);
+                    return data;
+                })
+                .Verifiable();
+
+            _accountRepoMock.Setup(a => a.CommitChanges())
+                .Returns(() =>
+                {
+                    if (AccountFakeDb.SingleOrDefault(a => a.Id == accountId && a.RowVersion == rowVersion) == null)
+                    {
+                        //Not throwing this because the concurrency problem sometimes happend 
+                        //and xUnit doesn't support Inconclusive result 
+                        //So that why I new a exception instead of throw DbUpdateConcurrencyException
+                        result = new Exception(errorMessage);
+                        return 0;
+                    }
+                    account.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
+
+                    Skip.If(result == null);
+                    return 1;
+                });
+
+            _transactionRepoMock.Setup(a => a.Create(It.IsAny<TransactionHistory>()))
+                .Verifiable("Creation of transaction should be call at least once");
+            _transactionRepoMock.Setup(a => a.CommitChanges())
+                .Verifiable("Saving changes transaction should be call at least once");
+            // Action
+            await Task<bool>.Factory.StartNew(() => _accountService.UpdateBalance(value, accountId, userId));
+
+            //assert
+            if (result != null)
+            {
+                Assert.True(result.Message == errorMessage);
+            }
+
+            _accountRepoMock.Verify(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()), Times.Once);
+            _transactionRepoMock.Verify(a => a.Create(It.IsAny<TransactionHistory>()), Times.Never);
+            _transactionRepoMock.Verify(a => a.CommitChanges(), Times.Never);
+        }
+
+        [SkippableTheory]
+        [MemberData(nameof(Transfer_Success))]
+        public async Task GivenCorrectData_WhenTransfer_Success_Concurrency(int accountId, double value, int desAccountId)
+        {
+            //arrange
+            Exception result = null;
+            string errorMessage = "Data was updated please reload the data";
+            var sourceAccount = AccountFakeDb.SingleOrDefault(a => a.Id == accountId);
+            var desAccount = AccountFakeDb.SingleOrDefault(a => a.Id == desAccountId);
+            byte[] rowVersionAccount = sourceAccount.RowVersion, rowVersionDesAccount = desAccount.RowVersion;
+
+
+            _accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns((Expression<Func<Account, bool>> expression) =>
+                {
+                    var data = AccountFakeDb.SingleOrDefault(expression);
+                    return data;
+                })
+                .Verifiable();
+
+            _accountRepoMock.Setup(a => a.Update(It.IsAny<Account>()))
+                .Returns(1);
+
+            _accountRepoMock.Setup(x => x.CommitChanges()).Returns(() =>
+            {
+
+                if (AccountFakeDb.Count(a => a.RowVersion == rowVersionAccount
+                                             || a.RowVersion == rowVersionDesAccount) < 2)
+                {
+
+                    //Not throwing this because the concurrency problem sometimes happend 
+                    //and xUnit doesn't support Inconclusive result 
+                    //So that why I new a exception instead of throw DbUpdateConcurrencyException
+                    result = new Exception(errorMessage);
+                    return 0;
+                }
+
+                sourceAccount.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
+                desAccount.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
+                Skip.If(result == null);
+                return 1;
+
+
+            }).Verifiable();
+
+            _transactionRepoMock.Setup(a => a.Create(It.IsAny<TransactionHistory>())).Verifiable();
+            _transactionRepoMock.Setup(a => a.CommitChanges()).Returns(1).Verifiable();
+
+            //action
+            await Task<bool>.Factory.StartNew(() => _accountService.TransferMoney(accountId, value, desAccountId));
 
             if (result != null)
             {

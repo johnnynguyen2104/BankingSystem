@@ -42,11 +42,20 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
         public static object[] UpdateBalance_Success = new object[]
         {
             new object[] { 1, 100, "1" },
-            new object[] { 1, -100, "1" },
+            new object[] { 1, -100.05, "1" },
+            new object[] { 1, 100, "1" },
+            new object[] { 1, 100.25, "1" },
             new object[] { 2, 100, "1" },
             new object[] { 5, -10, "3" },
             new object[] { 4, 100, "2" },
             new object[] { 2, -100, "1" },
+            new object[] { 3, 1, "2" },
+            new object[] { 1, 100.3, "1" },
+            new object[] { 1, 100.25, "1" },
+            new object[] { 2, 100.9, "1" },
+            new object[] { 5, 10, "3" },
+            new object[] { 4, -100.10, "2" },
+            new object[] { 2, 100, "1" },
             new object[] { 3, 1, "2" }
         };
 
