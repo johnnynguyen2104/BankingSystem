@@ -38,7 +38,7 @@ namespace BankSystem.DAL.Interfaces
         /// Updating an entity
         /// </summary>
         /// <param name="entity">Entity for updating</param>
-        void Update(TEntity entity);
+        int Update(TEntity entity);
 
         /// <summary>
         /// Deleting list of entities base on condition

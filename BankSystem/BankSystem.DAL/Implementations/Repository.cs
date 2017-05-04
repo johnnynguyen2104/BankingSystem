@@ -38,10 +38,16 @@ namespace BankSystem.DAL.Implementations
             return entity;
         }
 
-        public void Update(TEntity entity)
+        public int Update(TEntity entity)
         {
-            var updateEntity = ReadOne(a => a.Id.Equals(entity.Id));
-            DbContext.Entry<TKey, TEntity>(updateEntity).CurrentValues.SetValues(entity);
+            var isExisted = Read(a => a.Id.Equals(entity.Id)).Count();
+            if (isExisted > 0)
+            {
+                DbContext.Entry<TKey, TEntity>(entity).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+
+                return 1;
+            }
+            throw new KeyNotFoundException("Entity not found.");
         }
 
         public int Delete(Expression<Func<TEntity, bool>> expression)
