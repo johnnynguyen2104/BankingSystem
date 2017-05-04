@@ -69,6 +69,9 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
                 new TransactionHistory(){ Id = 7, Note= "ABC_7", AccountId = 5, Account = new Account(){ Id = 5, AccountName= "ABC", UserId = "3" }, Type = TransactionType.Withdraw, Value = 100 }
             }.AsQueryable();
 
-
+        public bool AlmostEquals(double double1, double double2, double precision)
+        {
+            return (Math.Abs(double1 - double2) <= precision);
+        }
     }
 }

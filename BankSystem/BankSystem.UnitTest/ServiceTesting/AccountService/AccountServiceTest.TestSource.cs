@@ -41,12 +41,12 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
 
         public static object[] UpdateBalance_Success = new object[]
         {
-            new object[] { 1, 1000, "1" },
+            new object[] { 1, 100, "1" },
             new object[] { 1, -100, "1" },
-            new object[] { 2, 1000, "1" },
+            new object[] { 2, 100, "1" },
             new object[] { 5, -10, "3" },
-            new object[] { 4, 1000, "2" },
-            new object[] { 2, -1000, "1" },
+            new object[] { 4, 100, "2" },
+            new object[] { 2, -100, "1" },
             new object[] { 3, 1, "2" }
         };
 
