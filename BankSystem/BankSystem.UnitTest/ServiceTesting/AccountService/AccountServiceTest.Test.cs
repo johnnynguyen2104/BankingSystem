@@ -627,7 +627,7 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
 
         [SkippableTheory]
         [MemberData(nameof(UpdateBalance_Success))]
-        public async Task GivenValidData_WhenUpdateBalance_Success_Concurrency(int accountId, double value, string userId)
+        public async Task GivenValidData_WhenUpdateBalance_ShouldThrowConcurrencyErrorOrInconclusive(int accountId, double value, string userId)
         {
             //arrange 
             Exception result = null;
@@ -680,7 +680,7 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
 
         [SkippableTheory]
         [MemberData(nameof(Transfer_Success))]
-        public async Task GivenCorrectData_WhenTransfer_Success_Concurrency(int accountId, double value, int desAccountId)
+        public async Task GivenCorrectData_WhenTransfer_ShouldThrowConcurrencyErrorOrInconclusive(int accountId, double value, int desAccountId)
         {
             //arrange
             Exception result = null;
@@ -746,7 +746,7 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
 
         [SkippableTheory]
         [MemberData(nameof(UpdateBalance_Success))]
-        public async Task GivenValidData_WhenUpdateBalance_Success_Concurrency(int accountId, double value, string userId)
+        public async Task GivenValidData_WhenUpdateBalance_ShouldThrowConcurrencyErrorOrInconclusive(int accountId, double value, string userId)
         {
             //arrange 
             Exception result = null;
@@ -799,7 +799,7 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
 
         [SkippableTheory]
         [MemberData(nameof(Transfer_Success))]
-        public async Task GivenCorrectData_WhenTransfer_Success_Concurrency(int accountId, double value, int desAccountId)
+        public async Task GivenCorrectData_WhenTransfer_ShouldThrowConcurrencyErrorOrInconclusive(int accountId, double value, int desAccountId)
         {
             //arrange
             Exception result = null;
