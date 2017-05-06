@@ -363,68 +363,6 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
 
         }
 
-
-        //[SkippableTheory]
-        //[MemberData(nameof(Transfer_Success))]
-        //public void GivenCorrectData_WhenTransfer_Success_Concurrency(int accountId, double value, int desAccountId)
-        //{
-        //    //arrange
-        //    Exception result = null;
-        //    string errorMessage = "Data was updated please reload the data";
-        //    var sourceAccount = AccountFakeDb.SingleOrDefault(a => a.Id == accountId);
-        //    var desAccount = AccountFakeDb.SingleOrDefault(a => a.Id == desAccountId);
-        //    byte[] rowVersionAccount = sourceAccount.RowVersion, rowVersionDesAccount = desAccount.RowVersion;
-
-
-        //    _accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
-        //        .Returns((Expression<Func<Account, bool>> expression) =>
-        //        {
-        //            var data = AccountFakeDb.SingleOrDefault(expression);
-        //            return data;
-        //        })
-        //        .Verifiable();
-
-        //    _accountRepoMock.Setup(a => a.Update(It.IsAny<Account>()))
-        //       .Returns(1);
-
-        //    _accountRepoMock.Setup(x => x.CommitChanges()).Returns(() =>
-        //    {
-
-        //        if (AccountFakeDb.Count(a => a.RowVersion == rowVersionAccount || a.RowVersion == rowVersionDesAccount) < 2)
-        //        {
-
-        //            //Not throwing this because the concurrency problem sometimes happend 
-        //            //and xUnit doesn't support Inconclusive result 
-        //            //So that why I new a exception instead of throw DbUpdateConcurrencyException
-        //            result = new Exception(errorMessage);
-        //            return 0;
-        //        }
-
-        //        sourceAccount.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
-        //        desAccount.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
-        //        Skip.If(result == null);
-        //        return 1;
-
-        //    }).Verifiable();
-
-        //    _transactionRepoMock.Setup(a => a.Create(It.IsAny<TransactionHistory>())).Verifiable();
-        //    _transactionRepoMock.Setup(a => a.CommitChanges()).Returns(1).Verifiable();
-
-        //    //action
-        //    _accountService.TransferMoney(accountId, value, desAccountId);
-
-        //    if (result != null)
-        //    {
-        //        //assert
-        //        Assert.True(result.Message == errorMessage);
-        //    }
-        //    //verify
-        //    _accountRepoMock.Verify(a => a.CommitChanges(), Times.Once);
-        //    _accountRepoMock.Verify(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()), Times.Exactly(2));
-
-        //}
-
-
         #endregion
 
         #region Read accounts by number
@@ -676,6 +614,101 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
             _accountRepoMock.Verify(a => a.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()), Times.Once);
             _transactionRepoMock.Verify(a => a.Create(It.IsAny<TransactionHistory>()), Times.Never);
             _transactionRepoMock.Verify(a => a.CommitChanges(), Times.Never);
+        }
+
+        [Fact]
+        public void GivenCorrectData_WhenTransfer_NotThrowingAnyException_ExceptConcurrencyException_Concurrency()
+        {
+            //arrange
+            var fakeDb = new List<Account>()
+            {
+                new Account(){ Id = 1, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC", UserId = "1", AccountNumber = "123-1", Balance = 1000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
+                new Account(){ Id = 2, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_2", UserId = "1", AccountNumber = "123-2", Balance = 1000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
+                new Account(){ Id = 3, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_3", UserId = "2", AccountNumber = "123-3", Balance = 2000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
+                new Account(){ Id = 4, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_4", UserId = "2", AccountNumber = "123-4", Balance = 1000, Password= "1235" },
+                new Account(){ Id = 5, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_5", UserId = "3", AccountNumber = "123-5", Balance = 2000, Password= "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92" },
+                new Account(){ Id = 6, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_6", UserId = "4", AccountNumber = "123-6", Balance = 3000, Password= "12356" },
+                new Account(){ Id = 7, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_7", UserId = "5", AccountNumber = "123-7", Balance = 10000, Password= "12345" },
+                new Account(){ Id = 8, RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks), AccountName= "ABC_8", UserId = "5", AccountNumber = "123-8", Balance = 213.43, Password= "12345" }
+            }.AsQueryable();
+
+
+            Thread[] threads = new Thread[Transfer_Success_Concurrency.Length];
+
+            _accountRepoMock.Setup(x => x.ReadOne(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns((Expression<Func<Account, bool>> expression) =>
+                {
+                    var data = fakeDb.SingleOrDefault(expression);
+                    return data;
+                })
+                .Verifiable();
+
+            _accountRepoMock.Setup(a => a.Update(It.IsAny<Account>()))
+                .Returns(1);
+
+            _transactionRepoMock.Setup(a => a.Create(It.IsAny<TransactionHistory>())).Verifiable();
+            _transactionRepoMock.Setup(a => a.CommitChanges()).Returns(1).Verifiable();
+
+
+            //Parallel.ForEach(Transfer_Success_Concurrency, item =>
+            //    {
+            //        double[] list = (double[])item;
+            //        GivenCorrectData_WhenTransfer_Success_Concurrency((int) list[0], list[1], (int) list[2], fakeDb);
+            //    }
+            //);
+
+            for (int i = 0; i < Transfer_Success_Concurrency.Length; i++)
+            {
+                double[] list = (double[])Transfer_Success_Concurrency[i];
+                threads[i] = new Thread(() => GivenCorrectData_WhenTransfer_Success_Concurrency((int)list[0], list[1], (int)list[2], fakeDb));
+                threads[i].Start();
+            }
+
+            for (int i = 0; i < threads.Length; i++)
+            {
+                threads[i].Join();
+            }
+        }
+
+        public void GivenCorrectData_WhenTransfer_Success_Concurrency(int accountId, double value, int desAccountId,
+            IQueryable<Account> fakeDb)
+        {
+
+            //arrange
+            string errorMes = "Concurrency";
+            Exception exception = null;
+            var sourceAccount = fakeDb.SingleOrDefault(a => a.Id == accountId);
+            var desAccount = fakeDb.SingleOrDefault(a => a.Id == desAccountId);
+
+            byte[] rowVersionAccount = sourceAccount.RowVersion, rowVersionDesAccount = desAccount.RowVersion;
+
+
+            _accountRepoMock.Setup(x => x.CommitChanges()).Returns(() =>
+            {
+                var existedAccounts = fakeDb.Where(a => (a.RowVersion == rowVersionAccount && a.Id == accountId)
+                                                        || (a.RowVersion == rowVersionDesAccount && a.Id == desAccountId
+                                                        ))
+                    .ToDictionary(f => f.Id, f => f.Balance);
+                if (existedAccounts.Count < 2)
+                {
+                    exception = new Exception(errorMes);
+                    return 0;
+                }
+                sourceAccount.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
+                desAccount.RowVersion = BitConverter.GetBytes(DateTime.Now.Ticks);
+
+                return 1;
+            }).Verifiable();
+
+            //action
+            _accountService.TransferMoney(accountId, value, desAccountId);
+
+            //assert exception
+            if (exception != null)
+            {
+                Assert.True(exception.Message == errorMes);
+            }
+
         }
 
         [SkippableTheory]

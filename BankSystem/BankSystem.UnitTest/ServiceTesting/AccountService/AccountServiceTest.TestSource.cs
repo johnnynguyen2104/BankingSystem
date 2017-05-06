@@ -128,17 +128,17 @@ namespace BankSystem.UnitTest.ServiceTesting.AccountService
 
         public static object[] Transfer_Success_Concurrency = new object[]
        {
-            new object[]{1, 55, 2 },
-            new object[]{2, 5, 3 },
-            new object[]{ 2, 5.25, 3 },
-            new object[]{ 2, 10.03, 3 },
-            new object[]{ 8, 102.52, 2 },
-            new object[]{1, 5, 2 },
-            new object[]{2, 10, 3 },
-            new object[]{ 3, 0.25, 2 },
-            new object[]{2, 3.25, 3 },
-            new object[]{3, 10.03, 2 },
-            new object[]{2, 10.23, 8 }
+            new double[]{1, 55, 2 },
+            new double[]{2, 5, 3 },
+            new double[]{ 2, 5.25, 3 },
+            new double[]{ 2, 10.03, 3 },
+            new double[]{ 8, 102.52, 2 },
+            new double[]{1, 5, 2 },
+            new double[]{2, 10, 3 },
+            new double[]{ 3, 0.25, 2 },
+            new double[]{2, 3.25, 3 },
+            new double[]{3, 10.03, 2 },
+            new double[]{2, 10.23, 8 }
        };
 
 
