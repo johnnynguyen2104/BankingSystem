@@ -7,7 +7,7 @@ This is a simple Banking system, I just base on some main functionals such as Wi
 
 ## Objectives
 
-I designed the architecture for this project base on 3 Layers pattern, Repository. Moreover, I splitted the Identity from Presentation Layer into another layer called Security to follow DI principle and  easier to make relationships between others entity model, etc... Beside, this project represent for solving the concurrency problem.
+I designed the architecture for this project base on 3 Layers pattern, Repository and OOD (SOLID). Moreover, I splitted the Identity from Presentation Layer into another layer called Security to follow DI principle and  easier to make relationships between others entity model, etc... Beside, this project represent for solving the concurrency problem.
 
 ## Technologies
 
@@ -49,6 +49,8 @@ There are many improvement for this project following below:
 + Improving security and UI for user.
 
 + Giving comment on every function in the project to make sure other developer in team or future team-mate can understand it.
+
++ Applying UnitOfWork pattern to manage data transaction.
 
 Thanks for reading this.;)
 
